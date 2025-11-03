@@ -86,16 +86,7 @@ export const authOptions: NextAuthOptions = {
     signIn: '/admin/login',
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
-  // Explicit cookie configuration for Vercel compatibility
-  cookies: {
-    sessionToken: {
-      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-  },
+  // Let NextAuth automatically handle cookie name and configuration
+  // It will automatically use the right cookie name based on environment
+  // Custom cookie names can cause mismatches with getToken in middleware
 }
