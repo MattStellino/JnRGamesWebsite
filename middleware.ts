@@ -67,5 +67,7 @@ export default withAuth(
 export const config = {
   matcher: [
     '/admin/:path*',
+    // Exclude NextAuth API routes from middleware matching
+    '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
   ],
 }
