@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react'
-import { headers } from 'next/headers'
+import { prisma } from '@/lib/prisma'
+import { sanitizeInput } from '@/lib/security'
 import ItemCard from '@/components/ItemCard'
 import SearchBar from '@/components/SearchBar'
 import CategoryFilter from '@/components/CategoryFilter'
@@ -9,57 +10,149 @@ import StructuredData from '@/components/StructuredData'
 
 export const dynamic = 'force-dynamic'
 
-function getBaseUrl() {
-  const headersList = headers()
-  const host = headersList.get('host')
-  const protocol = headersList.get('x-forwarded-proto') || 'https'
-  return `${protocol}://${host}`
-}
-
 async function getItems(search?: string, category?: string, consoleType?: string, console?: string, page?: string) {
-  const params = new URLSearchParams()
-  if (search) params.append('search', search)
-  if (category) params.append('category', category)
-  if (consoleType) params.append('consoleType', consoleType)
-  if (console) params.append('console', console)
-  if (page) params.append('page', page)
+  const pageNum = parseInt(page || '1')
+  const limit = 12
+  const skip = (pageNum - 1) * limit
 
-  const baseUrl = getBaseUrl()
-  const response = await fetch(`${baseUrl}/api/items?${params}`, {
-    cache: 'no-store'
-  })
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch items')
+  // Sanitize search input
+  const sanitizedSearch = search ? sanitizeInput(search) : null
+
+  const where: any = {}
+
+  // Handle category name filtering
+  if (category) {
+    if (category === 'consoles') {
+      where.category = { name: 'Consoles' }
+    } else if (category === 'accessories') {
+      where.category = { name: 'Accessories' }
+    } else if (category === 'handhelds') {
+      where.category = { name: 'Handhelds' }
+    } else if (category === 'controllers') {
+      where.category = { name: 'Controllers' }
+    } else if (category === 'games') {
+      where.category = { name: 'Games' }
+    } else {
+      where.category = {
+        name: { contains: category, mode: 'insensitive' }
+      }
+    }
   }
-  
-  return response.json()
+
+  // Handle console type filtering
+  if (consoleType) {
+    const consoleTypeId = parseInt(consoleType)
+    if (!isNaN(consoleTypeId)) {
+      where.console = {
+        consoleType: { id: consoleTypeId }
+      }
+    } else {
+      where.console = {
+        consoleType: {
+          name: { contains: consoleType, mode: 'insensitive' }
+        }
+      }
+    }
+  }
+
+  // Handle specific console filtering
+  if (console) {
+    if (console === 'all') {
+      if (!consoleType) {
+        where.console = { isNot: null }
+      }
+    } else {
+      where.consoleId = parseInt(console)
+    }
+  }
+
+  // Handle search
+  if (sanitizedSearch) {
+    where.OR = [
+      { name: { contains: sanitizedSearch, mode: 'insensitive' } },
+      { description: { contains: sanitizedSearch, mode: 'insensitive' } },
+      { 
+        console: {
+          name: { contains: sanitizedSearch, mode: 'insensitive' }
+        }
+      },
+      { 
+        console: {
+          consoleType: {
+            name: { contains: sanitizedSearch, mode: 'insensitive' }
+          }
+        }
+      },
+      { 
+        category: {
+          name: { contains: sanitizedSearch, mode: 'insensitive' }
+        }
+      }
+    ]
+  }
+
+  // Get total count for pagination
+  const totalItems = await prisma.item.count({ where })
+
+  // Get paginated items
+  const items = await prisma.item.findMany({
+    where,
+    include: {
+      category: true,
+      console: {
+        include: {
+          consoleType: true
+        }
+      }
+    },
+    orderBy: {
+      name: 'asc',
+    },
+    skip,
+    take: limit,
+  })
+
+  // Calculate pagination info
+  const totalPages = Math.ceil(totalItems / limit)
+  const hasNextPage = pageNum < totalPages
+  const hasPrevPage = pageNum > 1
+
+  return {
+    items,
+    pagination: {
+      currentPage: pageNum,
+      totalPages,
+      totalItems,
+      itemsPerPage: limit,
+      hasNextPage,
+      hasPrevPage,
+    }
+  }
 }
 
 async function getCategories() {
-  const baseUrl = getBaseUrl()
-  const response = await fetch(`${baseUrl}/api/categories`, {
-    cache: 'no-store'
+  const categories = await prisma.category.findMany({
+    orderBy: {
+      name: 'asc',
+    },
   })
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch categories')
-  }
-  
-  return response.json()
+  return categories
 }
 
 async function getConsoleTypes() {
-  const baseUrl = getBaseUrl()
-  const response = await fetch(`${baseUrl}/api/console-types`, {
-    cache: 'no-store'
+  const consoleTypes = await prisma.consoleType.findMany({
+    include: {
+      consoles: {
+        orderBy: {
+          name: 'asc'
+        }
+      }
+    },
+    orderBy: {
+      name: 'asc',
+    },
   })
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch console types')
-  }
-  
-  return response.json()
+  return consoleTypes
 }
 
 export default async function ItemsPage({

@@ -1,30 +1,33 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
+import { prisma } from '@/lib/prisma'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, DollarSign, Tag, Gamepad2, Mail, Phone, AlertCircle } from 'lucide-react'
 import StructuredData from '@/components/StructuredData'
 
-function getBaseUrl() {
-  const headersList = headers()
-  const host = headersList.get('host')
-  const protocol = headersList.get('x-forwarded-proto') || 'https'
-  return `${protocol}://${host}`
-}
-
 async function getItem(id: string) {
   try {
-    const baseUrl = getBaseUrl()
-    const response = await fetch(`${baseUrl}/api/items/${id}`, {
-      cache: 'no-store'
-    })
-
-    if (!response.ok) {
+    const itemId = parseInt(id)
+    if (isNaN(itemId)) {
       return null
     }
 
-    return response.json()
+    const item = await prisma.item.findUnique({
+      where: {
+        id: itemId
+      },
+      include: {
+        category: true,
+        console: {
+          include: {
+            consoleType: true
+          }
+        }
+      }
+    })
+
+    return item
   } catch (error) {
     console.error('Error fetching item:', error)
     return null
@@ -435,4 +438,5 @@ export async function generateMetadata({
       description: 'There was an error loading this item.',
     }
   }
+}
 }
