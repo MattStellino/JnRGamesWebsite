@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useSearchParams } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import JRGamesLogo from '@/components/JRGamesLogo'
@@ -11,6 +11,8 @@ export default function AdminLogin() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/admin'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,16 +24,19 @@ export default function AdminLogin() {
         username,
         password,
         redirect: false,
-        callbackUrl: '/admin',
+        callbackUrl,
       })
 
       if (result?.error) {
         console.error('Sign in error:', result.error)
         setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
         setLoading(false)
-      } else if (result?.ok && result.url) {
-        // Successful login - use window.location for more reliable redirect
-        window.location.href = result.url || '/admin'
+      } else if (result?.ok) {
+        // Successful login - wait a moment for session to be established, then redirect
+        const redirectUrl = result.url || callbackUrl || '/admin'
+        setTimeout(() => {
+          window.location.href = redirectUrl
+        }, 100)
       } else {
         setError('Login failed. Please try again.')
         setLoading(false)
