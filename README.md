@@ -2,6 +2,8 @@
 
 A modern buylist application for J&R Games featuring a public-facing item browsing interface and secure admin dashboard. Built with Next.js 15, TypeScript, PostgreSQL, and Tailwind CSS.
 
+> Deployed on Vercel
+
 **Technologies:** Next.js 15 · TypeScript · React 18 · PostgreSQL · Prisma ORM · NextAuth.js · Tailwind CSS · DOMPurify
 
 ## Tech Stack
