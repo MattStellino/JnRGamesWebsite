@@ -20,29 +20,34 @@ function LoginForm() {
     setError('')
 
     try {
-      const result = await signIn('credentials', {
+      // Add timeout to prevent hanging
+      const signInPromise = signIn('credentials', {
         username,
         password,
         redirect: false,
         callbackUrl,
       })
 
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Login request timed out')), 10000)
+      )
+
+      const result = await Promise.race([signInPromise, timeoutPromise]) as any
+
       if (result?.error) {
         console.error('Sign in error:', result.error)
         setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
         setLoading(false)
       } else if (result?.ok) {
-        // Successful login - let NextAuth handle the redirect to ensure session is set
-        // First verify session is available, then redirect
+        // Successful login - redirect immediately
         const redirectUrl = result.url || callbackUrl || '/admin'
+        console.log('Login successful, redirecting to:', redirectUrl)
         
-        // Use router.push with a full reload to ensure session cookie is recognized
-        router.push(redirectUrl)
-        // Force a hard refresh to ensure session is loaded
-        setTimeout(() => {
-          router.refresh()
-        }, 100)
+        // Use window.location for reliable redirect
+        window.location.href = redirectUrl
+        // Don't set loading to false since we're redirecting
       } else {
+        console.error('Unexpected result:', result)
         setError('Login failed. Please try again.')
         setLoading(false)
       }
