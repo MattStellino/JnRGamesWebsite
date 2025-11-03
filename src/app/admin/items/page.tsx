@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
+// Middleware already protects this route
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import ItemTable from '@/components/admin/ItemTable'
@@ -7,12 +6,7 @@ import ItemTable from '@/components/admin/ItemTable'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminItemsPage() {
-  const session = await getServerSession(authOptions)
-
-  if (!session) {
-    redirect('/admin/login')
-  }
-
+  // Middleware already protects this route
   const [rawItems, categories, consoleTypes] = await Promise.all([
     prisma.item.findMany({
       include: {

@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
+// Middleware already protects this route
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import ConsoleTypeManager from '@/components/admin/ConsoleTypeManager'
@@ -7,12 +6,7 @@ import ConsoleTypeManager from '@/components/admin/ConsoleTypeManager'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminConsolesPage() {
-  const session = await getServerSession(authOptions)
-
-  if (!session) {
-    redirect('/admin/login')
-  }
-
+  // Middleware already protects this route
   const consoleTypes = await prisma.consoleType.findMany({
     include: {
       consoles: {

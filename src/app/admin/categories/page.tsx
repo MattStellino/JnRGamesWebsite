@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
+// Middleware already protects this route
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import CategoryManager from '@/components/admin/CategoryManager'
@@ -7,12 +6,7 @@ import CategoryManager from '@/components/admin/CategoryManager'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminCategoriesPage() {
-  const session = await getServerSession(authOptions)
-
-  if (!session) {
-    redirect('/admin/login')
-  }
-
+  // Middleware already protects this route
   const categories = await prisma.category.findMany({
     include: {
       items: true,
