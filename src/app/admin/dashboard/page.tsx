@@ -4,20 +4,12 @@ import { prisma } from '@/lib/prisma'
 import { 
   Package, 
   Tag, 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
   Gamepad2, 
   Plus,
-  Eye,
-  Edit,
-  Trash2,
-  BarChart3,
   Clock,
   AlertCircle,
   CheckCircle,
-  ArrowUpRight,
-  ArrowDownRight
+  ArrowUpRight
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -30,7 +22,6 @@ async function getDashboardStats() {
     totalConsoleTypes,
     totalConsoles,
     recentItems,
-    totalValue,
     itemsByCategory,
     itemsByConsoleType,
     lowStockItems,
@@ -52,11 +43,6 @@ async function getDashboardStats() {
       },
       orderBy: {
         createdAt: 'desc'
-      }
-    }),
-    prisma.item.aggregate({
-      _sum: {
-        price: true
       }
     }),
     prisma.item.groupBy({
@@ -117,7 +103,6 @@ async function getDashboardStats() {
     totalConsoleTypes,
     totalConsoles,
     recentItems,
-    totalValue: totalValue._sum.price || 0,
     itemsByCategory,
     itemsByConsoleType,
     lowStockItems,
@@ -135,7 +120,6 @@ export default async function AdminDashboard() {
     totalConsoleTypes, 
     totalConsoles, 
     recentItems, 
-    totalValue,
     itemsByCategory,
     itemsByConsoleType,
     lowStockItems,
@@ -178,16 +162,8 @@ export default async function AdminDashboard() {
       href: '/admin/dashboard/consoles',
       change: '+5',
       changeType: 'positive'
-    },
-    {
-      name: 'Inventory Value',
-      value: `$${totalValue.toLocaleString()}`,
-      icon: DollarSign,
-      color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
-      href: '/admin/dashboard/analytics',
-      change: '+8.2%',
-      changeType: 'positive'
     }
+    // Inventory Value removed - not inventory, it's what they accept to sell
   ]
 
   return (
@@ -199,21 +175,13 @@ export default async function AdminDashboard() {
             <h1 className="text-4xl font-bold mb-2">Welcome back, {session?.user?.name || session?.user?.email || 'Admin'}!</h1>
             <p className="text-blue-100 text-lg">Here's your inventory overview and key insights</p>
           </div>
-          <div className="hidden md:block">
-            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold">${totalValue.toLocaleString()}</div>
-                <div className="text-blue-100 text-sm">Total Inventory Value</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/admin/dashboard/items?action=create"
             className="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
@@ -252,24 +220,11 @@ export default async function AdminDashboard() {
               <div className="text-sm text-gray-600">Create new console</div>
             </div>
           </Link>
-          
-          <Link
-            href="/admin/dashboard/analytics"
-            className="flex items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors group"
-          >
-            <div className="p-2 bg-orange-500 rounded-lg group-hover:bg-orange-600 transition-colors">
-              <BarChart3 className="h-5 w-5 text-white" />
-            </div>
-            <div className="ml-3">
-              <div className="font-medium text-gray-900">View Analytics</div>
-              <div className="text-sm text-gray-600">See detailed reports</div>
-            </div>
-          </Link>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
           <Link
             key={stat.name}
