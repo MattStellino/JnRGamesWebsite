@@ -1,14 +1,23 @@
-import DOMPurify from 'isomorphic-dompurify'
-
-// Input sanitization
+// Input sanitization - serverless-safe version (no jsdom dependency)
 export function sanitizeInput(input: string): string {
   if (typeof input !== 'string') return ''
   
-  // Remove potentially dangerous characters
-  return DOMPurify.sanitize(input.trim(), {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: []
-  })
+  // Remove HTML tags and dangerous characters
+  let sanitized = input.trim()
+    // Remove HTML tags
+    .replace(/<[^>]*>/g, '')
+    // Remove script tags and content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // Remove event handlers
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    // Remove javascript: protocol
+    .replace(/javascript:/gi, '')
+    // Remove data: URLs
+    .replace(/data:/gi, '')
+    // Remove dangerous characters
+    .replace(/[<>]/g, '')
+  
+  return sanitized
 }
 
 // Email validation
