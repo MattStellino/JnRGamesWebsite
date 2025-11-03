@@ -30,8 +30,7 @@ const nextConfig = {
   // Next 16: server external packages
   serverExternalPackages: ['@prisma/client'],
   
-  // Turbopack config (empty to acknowledge usage and avoid build error)
-  turbopack: {},
+  // Remove turbopack config - let Next.js handle it automatically
   
   // Security and caching headers
   async headers() {
