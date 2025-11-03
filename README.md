@@ -1,6 +1,8 @@
 # J&R Games Buylist App
 
-A Next.js 15 application for managing and viewing gaming items with prices. Features a public interface for browsing items and a comprehensive admin dashboard for managing categories and items.
+A modern buylist application for J&R Games featuring a public-facing item browsing interface and secure admin dashboard. Built with Next.js 15, TypeScript, PostgreSQL, and Tailwind CSS.
+
+**Technologies:** Next.js 15 · TypeScript · React 18 · PostgreSQL · Prisma ORM · NextAuth.js · Tailwind CSS · DOMPurify
 
 ## Tech Stack
 
