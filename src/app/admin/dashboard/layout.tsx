@@ -15,6 +15,11 @@ export default async function AdminDashboardLayout({
   // Middleware already protects this route, so we can safely get session without checking
   // If middleware didn't protect it, we wouldn't get here
   const session = await getServerSession(authOptions)
+  
+  // Log session for debugging production issues
+  if (!session) {
+    console.error('[AdminDashboardLayout] No session found - this should not happen if middleware is working')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

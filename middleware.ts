@@ -20,16 +20,18 @@ export async function middleware(req: NextRequest) {
       secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development'
     })
     
-    // Log for debugging
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Custom middleware check:', {
-        pathname,
-        hasToken: !!token,
-        tokenId: token?.id,
-        tokenUsername: token?.username,
-        cookies: req.cookies.getAll().map(c => c.name)
-      })
-    }
+    // Log for debugging (both dev and production to diagnose issues)
+    console.log('[Middleware] Admin route check:', {
+      pathname,
+      hasToken: !!token,
+      tokenId: token?.id,
+      tokenUsername: token?.username,
+      cookieCount: req.cookies.getAll().length,
+      cookieNames: req.cookies.getAll().map(c => c.name),
+      origin: req.headers.get('origin'),
+      host: req.headers.get('host'),
+      url: req.url
+    })
     
     // If no token, redirect to login
     if (!token) {

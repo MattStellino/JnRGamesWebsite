@@ -89,4 +89,6 @@ export const authOptions: NextAuthOptions = {
   // Let NextAuth automatically handle cookie name and configuration
   // It will automatically use the right cookie name based on environment
   // Custom cookie names can cause mismatches with getToken in middleware
+  // Debug logging for production issues
+  debug: process.env.NODE_ENV === 'production',
 }
