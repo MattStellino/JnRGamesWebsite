@@ -85,7 +85,4 @@ export const authOptions: NextAuthOptions = {
     signIn: '/admin/login',
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
-  // Use environment variable or auto-detect from Vercel
-  trustHost: true, // Required for Vercel deployments
-  debug: process.env.NODE_ENV === 'development',
 }
