@@ -39,9 +39,11 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL?.startsWith('http') 
+    process.env.NEXT_PUBLIC_BASE_URL && process.env.NEXT_PUBLIC_BASE_URL.startsWith('http') 
       ? process.env.NEXT_PUBLIC_BASE_URL 
-      : `https://${process.env.NEXT_PUBLIC_BASE_URL || 'localhost:3001'}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'https://localhost:3000'
   ),
   alternates: {
     canonical: '/',

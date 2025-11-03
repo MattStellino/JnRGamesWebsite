@@ -31,6 +31,11 @@ export function rateLimit(request: NextRequest, endpoint: string): NextResponse 
   const config = rateLimitConfigs[endpoint]
   if (!config) return null
 
+  // Cleanup old entries periodically (serverless-safe)
+  if (Math.random() < 0.1) { // 10% chance to cleanup on each request
+    cleanupOldEntries()
+  }
+
   const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
   const key = `${ip}:${endpoint}`
   const now = Date.now()
@@ -56,8 +61,8 @@ export function rateLimit(request: NextRequest, endpoint: string): NextResponse 
   return null
 }
 
-// Clean up old entries periodically
-setInterval(() => {
+// Clean up old entries periodically (serverless-safe: only cleanup on request)
+function cleanupOldEntries() {
   const now = Date.now()
   const keysToDelete: string[] = []
   requestCounts.forEach((value, key) => {
@@ -66,6 +71,6 @@ setInterval(() => {
     }
   })
   keysToDelete.forEach(key => requestCounts.delete(key))
-}, 5 * 60 * 1000) // Clean every 5 minutes
+}
 
 
