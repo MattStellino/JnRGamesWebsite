@@ -28,8 +28,6 @@ function LoginForm() {
     setError('')
 
     try {
-      addDebugLog(`Attempting login for: ${username}`)
-      
       // Use redirect: false to handle it manually and verify session
       const result = await signIn('credentials', {
         username,
@@ -38,27 +36,19 @@ function LoginForm() {
         callbackUrl: '/admin/dashboard',
       })
 
-      addDebugLog(`SignIn result: ${JSON.stringify(result)}`)
-
       if (result?.error) {
-        addDebugLog(`❌ Sign in error: ${result.error}`)
         setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
         setLoading(false)
       } else if (result?.ok) {
         // Login successful - use relative URL to avoid NEXTAUTH_URL issues
-        addDebugLog('✅ Login successful!')
-        addDebugLog('🔄 Redirecting to dashboard...')
-        
         // Always use relative URL to avoid redirecting to wrong domain
         // This works for both local and production
         window.location.href = '/admin/dashboard'
       } else {
-        addDebugLog(`❌ Unexpected result: ${JSON.stringify(result)}`)
         setError('Login failed. Please try again.')
         setLoading(false)
       }
     } catch (error) {
-      addDebugLog(`❌ Login error: ${error}`)
       setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
       setLoading(false)
     }
@@ -114,15 +104,6 @@ function LoginForm() {
 
           {error && (
             <div className="text-red-600 text-sm text-center mb-4">{error}</div>
-          )}
-
-          {debugInfo.length > 0 && (
-            <div className="bg-gray-100 p-4 rounded-md text-xs font-mono max-h-40 overflow-y-auto mb-4">
-              <div className="font-bold mb-2">Debug Info:</div>
-              {debugInfo.map((log, idx) => (
-                <div key={idx} className="text-gray-700 mb-1">{log}</div>
-              ))}
-            </div>
           )}
 
           <div>
