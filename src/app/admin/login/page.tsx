@@ -38,25 +38,39 @@ function LoginForm() {
         setLoading(false)
       } else if (result?.ok) {
         // Login successful - verify session before redirecting
-        console.log('Login successful, checking session...')
+        console.log('✅ Login successful! Result:', result)
+        console.log('⏳ Waiting for session cookie to be set...')
         
-        // Wait a moment for cookie to be set, then verify session
-        await new Promise(resolve => setTimeout(resolve, 500))
+        // Wait longer for cookie to be set, then verify session
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
         // Try to get session to verify it's set
         const { getSession } = await import('next-auth/react')
-        const session = await getSession()
+        let session = await getSession()
         
-        console.log('Session after login:', session)
+        // If no session, try again after another delay
+        if (!session) {
+          console.log('⚠️ Session not found, waiting longer...')
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          session = await getSession()
+        }
+        
+        console.log('📋 Session check result:', session ? '✅ Session found!' : '❌ No session')
+        console.log('📋 Session details:', JSON.stringify(session, null, 2))
         
         if (session) {
-          // Session is set, redirect
+          // Session is set, redirect with delay so user can see console
           const redirectUrl = result.url || callbackUrl || '/admin'
-          console.log('Redirecting to:', redirectUrl)
-          window.location.href = redirectUrl
+          console.log('🔄 Will redirect to:', redirectUrl, 'in 2 seconds...')
+          
+          // Give user time to read console
+          setTimeout(() => {
+            console.log('🚀 Redirecting now...')
+            window.location.href = redirectUrl
+          }, 2000)
         } else {
-          console.error('Session not found after login')
-          setError('Login succeeded but session not found. Please try again.')
+          console.error('❌ Session not found after login attempts')
+          setError('Login succeeded but session not found. Check console for details.')
           setLoading(false)
         }
       } else {
