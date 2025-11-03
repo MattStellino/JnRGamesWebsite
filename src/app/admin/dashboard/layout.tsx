@@ -26,7 +26,7 @@ export default async function AdminDashboardLayout({
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600 hidden sm:block">
-                Welcome, {session.user?.username}
+                Welcome, {session?.user?.username || 'Admin'}
               </span>
               <a
                 href="/api/auth/signout"
