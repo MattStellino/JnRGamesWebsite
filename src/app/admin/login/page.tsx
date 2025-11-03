@@ -22,24 +22,50 @@ function LoginForm() {
     try {
       console.log('Attempting login for:', username)
       
-      // Use NextAuth's built-in redirect on success
+      // Use redirect: false to handle it manually and verify session
       const result = await signIn('credentials', {
         username,
         password,
-        redirect: true, // Let NextAuth handle redirect
+        redirect: false,
         callbackUrl: callbackUrl,
       })
 
-      // If we get here, redirect: true didn't work, so handle manually
-      console.log('SignIn returned:', result)
-      
+      console.log('SignIn result:', result)
+
+      if (result?.error) {
+        console.error('Sign in error:', result.error)
+        setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
+        setLoading(false)
+      } else if (result?.ok) {
+        // Login successful - verify session before redirecting
+        console.log('Login successful, checking session...')
+        
+        // Wait a moment for cookie to be set, then verify session
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Try to get session to verify it's set
+        const { getSession } = await import('next-auth/react')
+        const session = await getSession()
+        
+        console.log('Session after login:', session)
+        
+        if (session) {
+          // Session is set, redirect
+          const redirectUrl = result.url || callbackUrl || '/admin'
+          console.log('Redirecting to:', redirectUrl)
+          window.location.href = redirectUrl
+        } else {
+          console.error('Session not found after login')
+          setError('Login succeeded but session not found. Please try again.')
+          setLoading(false)
+        }
+      } else {
+        console.error('Unexpected result:', result)
+        setError('Login failed. Please try again.')
+        setLoading(false)
+      }
     } catch (error) {
       console.error('Login error:', error)
-      // If redirect: true fails, it might throw - catch and handle
-      if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
-        // This is expected - NextAuth is redirecting
-        return
-      }
       setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
       setLoading(false)
     }
