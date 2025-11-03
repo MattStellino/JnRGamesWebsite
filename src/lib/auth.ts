@@ -69,13 +69,14 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id
         token.username = (user as any).username || user.name || user.email
       }
       return token
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.sub!
+        session.user.id = token.id as string || token.sub!
         session.user.username = token.username as string
       }
       return session
@@ -85,4 +86,15 @@ export const authOptions: NextAuthOptions = {
     signIn: '/admin/login',
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
 }

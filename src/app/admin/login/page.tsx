@@ -32,11 +32,13 @@ function LoginForm() {
         setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
         setLoading(false)
       } else if (result?.ok) {
-        // Successful login - wait a moment for session to be established, then redirect
+        // Successful login - wait for session cookie to be set, then redirect
         const redirectUrl = result.url || callbackUrl || '/admin'
+        // Use a longer delay to ensure cookie is set and session is established
         setTimeout(() => {
+          // Force a full page reload to ensure session is recognized
           window.location.href = redirectUrl
-        }, 100)
+        }, 500)
       } else {
         setError('Login failed. Please try again.')
         setLoading(false)
