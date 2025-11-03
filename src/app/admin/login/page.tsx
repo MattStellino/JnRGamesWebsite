@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import JRGamesLogo from '@/components/JRGamesLogo'
 
@@ -22,22 +22,23 @@ export default function AdminLogin() {
         username,
         password,
         redirect: false,
+        callbackUrl: '/admin',
       })
 
       if (result?.error) {
         console.error('Sign in error:', result.error)
         setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
-      } else if (result?.ok) {
-        // Successful login
-        router.push('/admin')
-        router.refresh()
+        setLoading(false)
+      } else if (result?.ok && result.url) {
+        // Successful login - use window.location for more reliable redirect
+        window.location.href = result.url || '/admin'
       } else {
         setError('Login failed. Please try again.')
+        setLoading(false)
       }
     } catch (error) {
       console.error('Login error:', error)
       setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    } finally {
       setLoading(false)
     }
   }
