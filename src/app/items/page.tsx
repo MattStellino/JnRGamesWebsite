@@ -134,12 +134,13 @@ async function getItems(search?: string, category?: string, consoleType?: string
         hasPrevPage,
       }
     }
-  } catch (error: unknown) {
+  } catch (err: unknown) {
     if (typeof console !== 'undefined') {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      console.error('Error fetching items:', errorMessage)
-      if (error instanceof Error && error.stack) {
-        console.error('Error stack:', error.stack)
+      if (err instanceof Error) {
+        console.error('Error fetching items:', err.message)
+        if (err.stack) console.error('Error stack:', err.stack)
+      } else {
+        console.error('Error fetching items:', String(err))
       }
     }
     return {
@@ -164,9 +165,9 @@ async function getCategories() {
       },
     })
     return categories
-  } catch (error: unknown) {
+  } catch (err: unknown) {
     if (typeof console !== 'undefined') {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage = err instanceof Error ? err.message : String(err)
       console.error('Error fetching categories:', errorMessage)
     }
     return []
@@ -188,9 +189,9 @@ async function getConsoleTypes() {
       },
     })
     return consoleTypes
-  } catch (error: unknown) {
+  } catch (err: unknown) {
     if (typeof console !== 'undefined') {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage = err instanceof Error ? err.message : String(err)
       console.error('Error fetching console types:', errorMessage)
     }
     return []
@@ -280,12 +281,12 @@ export default async function ItemsPage({
       </div>
     </>
   )
-  } catch (error: unknown) {
+  } catch (err: unknown) {
     if (typeof console !== 'undefined') {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage = err instanceof Error ? err.message : String(err)
       console.error('Error in ItemsPage:', errorMessage)
-      if (error instanceof Error && error.stack) {
-        console.error('Error stack:', error.stack)
+      if (err instanceof Error && err.stack) {
+        console.error('Error stack:', err.stack)
       }
       console.error('DATABASE_URL exists:', !!process.env.DATABASE_URL)
     }
