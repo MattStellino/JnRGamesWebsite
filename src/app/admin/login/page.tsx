@@ -10,17 +10,9 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [debugInfo, setDebugInfo] = useState<string[]>([])
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/admin'
-
-  const addDebugLog = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString()
-    const logMessage = `[${timestamp}] ${message}`
-    console.log(logMessage)
-    setDebugInfo(prev => [...prev, logMessage].slice(-10)) // Keep last 10 logs
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
