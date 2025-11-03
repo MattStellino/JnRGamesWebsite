@@ -1,5 +1,4 @@
 // Middleware already protects this route
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import ConsoleTypeManager from '@/components/admin/ConsoleTypeManager'
 
