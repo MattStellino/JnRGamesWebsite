@@ -46,16 +46,20 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Allow access to login page without authentication
-        if (req.nextUrl.pathname === '/admin/login') {
+        // Allow access to login page and NextAuth API routes without authentication
+        const pathname = req.nextUrl.pathname
+        if (pathname === '/admin/login' || pathname.startsWith('/api/auth/')) {
           return true
         }
         // Protect all other admin routes
-        if (req.nextUrl.pathname.startsWith('/admin')) {
+        if (pathname.startsWith('/admin')) {
           return !!token
         }
         return true
       },
+    },
+    pages: {
+      signIn: '/admin/login',
     },
   }
 )
