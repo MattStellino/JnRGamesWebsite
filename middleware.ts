@@ -1,6 +1,5 @@
 import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
-import { authOptions } from '@/lib/auth'
 
 export default withAuth(
   function middleware(req) {
@@ -55,6 +54,14 @@ export default withAuth(
         }
         // Protect all other admin routes
         if (pathname.startsWith('/admin')) {
+          // Log token for debugging (remove in production)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Middleware token check:', { 
+              pathname, 
+              hasToken: !!token,
+              tokenKeys: token ? Object.keys(token) : null
+            })
+          }
           return !!token
         }
         return true
@@ -63,8 +70,6 @@ export default withAuth(
     pages: {
       signIn: '/admin/login',
     },
-    // CRITICAL: Pass authOptions so middleware can decode JWT tokens
-    ...authOptions,
   }
 )
 
