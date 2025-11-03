@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react'
+import { headers } from 'next/headers'
 import ItemCard from '@/components/ItemCard'
 import SearchBar from '@/components/SearchBar'
 import CategoryFilter from '@/components/CategoryFilter'
@@ -8,6 +9,13 @@ import StructuredData from '@/components/StructuredData'
 
 export const dynamic = 'force-dynamic'
 
+function getBaseUrl() {
+  const headersList = headers()
+  const host = headersList.get('host')
+  const protocol = headersList.get('x-forwarded-proto') || 'https'
+  return `${protocol}://${host}`
+}
+
 async function getItems(search?: string, category?: string, consoleType?: string, console?: string, page?: string) {
   const params = new URLSearchParams()
   if (search) params.append('search', search)
@@ -16,7 +24,7 @@ async function getItems(search?: string, category?: string, consoleType?: string
   if (console) params.append('console', console)
   if (page) params.append('page', page)
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = getBaseUrl()
   const response = await fetch(`${baseUrl}/api/items?${params}`, {
     cache: 'no-store'
   })
@@ -29,7 +37,7 @@ async function getItems(search?: string, category?: string, consoleType?: string
 }
 
 async function getCategories() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = getBaseUrl()
   const response = await fetch(`${baseUrl}/api/categories`, {
     cache: 'no-store'
   })
@@ -42,7 +50,7 @@ async function getCategories() {
 }
 
 async function getConsoleTypes() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = getBaseUrl()
   const response = await fetch(`${baseUrl}/api/console-types`, {
     cache: 'no-store'
   })

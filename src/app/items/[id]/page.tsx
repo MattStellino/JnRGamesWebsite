@@ -1,13 +1,21 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, DollarSign, Tag, Gamepad2, Mail, Phone, AlertCircle } from 'lucide-react'
 import StructuredData from '@/components/StructuredData'
 
+function getBaseUrl() {
+  const headersList = headers()
+  const host = headersList.get('host')
+  const protocol = headersList.get('x-forwarded-proto') || 'https'
+  return `${protocol}://${host}`
+}
+
 async function getItem(id: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const baseUrl = getBaseUrl()
     const response = await fetch(`${baseUrl}/api/items/${id}`, {
       cache: 'no-store'
     })
