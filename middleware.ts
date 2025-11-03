@@ -43,6 +43,10 @@ export async function middleware(req: NextRequest) {
     // Token exists, allow access
     const response = NextResponse.next()
     addSecurityHeaders(response)
+    // Prevent caching of admin pages to ensure fresh auth checks on back navigation
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
     return response
   }
   
@@ -58,6 +62,10 @@ function addSecurityHeaders(response: NextResponse) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  // Prevent caching to ensure authentication is always checked
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+  response.headers.set('Pragma', 'no-cache')
+  response.headers.set('Expires', '0')
 }
 
 export const config = {

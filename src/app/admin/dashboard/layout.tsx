@@ -4,6 +4,9 @@ import AdminSidebar from '@/components/admin/AdminSidebar'
 import MobileNav from '@/components/admin/MobileNav'
 import JRGamesLogo from '@/components/JRGamesLogo'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function AdminDashboardLayout({
   children,
 }: {
