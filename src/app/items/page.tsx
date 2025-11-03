@@ -137,6 +137,7 @@ async function getItems(search?: string, category?: string, consoleType?: string
   } catch (error) {
     if (typeof console !== 'undefined') {
       console.error('Error fetching items:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
     }
     return {
       items: [],
@@ -277,6 +278,8 @@ export default async function ItemsPage({
   } catch (error) {
     if (typeof console !== 'undefined') {
       console.error('Error in ItemsPage:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      console.error('DATABASE_URL exists:', !!process.env.DATABASE_URL)
     }
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
