@@ -136,8 +136,11 @@ async function getItems(search?: string, category?: string, consoleType?: string
     }
   } catch (error) {
     if (typeof console !== 'undefined') {
-      console.error('Error fetching items:', error)
-      console.error('Error details:', JSON.stringify(error, null, 2))
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Error fetching items:', errorMessage)
+      if (error instanceof Error) {
+        console.error('Error stack:', error.stack)
+      }
     }
     return {
       items: [],
@@ -163,7 +166,8 @@ async function getCategories() {
     return categories
   } catch (error) {
     if (typeof console !== 'undefined') {
-      console.error('Error fetching categories:', error)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Error fetching categories:', errorMessage)
     }
     return []
   }
@@ -186,7 +190,8 @@ async function getConsoleTypes() {
     return consoleTypes
   } catch (error) {
     if (typeof console !== 'undefined') {
-      console.error('Error fetching console types:', error)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Error fetching console types:', errorMessage)
     }
     return []
   }
@@ -277,8 +282,11 @@ export default async function ItemsPage({
   )
   } catch (error) {
     if (typeof console !== 'undefined') {
-      console.error('Error in ItemsPage:', error)
-      console.error('Error details:', JSON.stringify(error, null, 2))
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Error in ItemsPage:', errorMessage)
+      if (error instanceof Error) {
+        console.error('Error stack:', error.stack)
+      }
       console.error('DATABASE_URL exists:', !!process.env.DATABASE_URL)
     }
     return (
