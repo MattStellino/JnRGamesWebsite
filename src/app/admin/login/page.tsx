@@ -10,9 +10,17 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<string[]>([])
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/admin'
+
+  const addDebugLog = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString()
+    const logMessage = `[${timestamp}] ${message}`
+    console.log(logMessage)
+    setDebugInfo(prev => [...prev, logMessage].slice(-10)) // Keep last 10 logs
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,7 +28,7 @@ function LoginForm() {
     setError('')
 
     try {
-      console.log('Attempting login for:', username)
+      addDebugLog(`Attempting login for: ${username}`)
       
       // Use redirect: false to handle it manually and verify session
       const result = await signIn('credentials', {
@@ -30,56 +38,65 @@ function LoginForm() {
         callbackUrl: callbackUrl,
       })
 
-      console.log('SignIn result:', result)
+      addDebugLog(`SignIn result: ${JSON.stringify(result)}`)
 
       if (result?.error) {
-        console.error('Sign in error:', result.error)
+        addDebugLog(`❌ Sign in error: ${result.error}`)
         setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
         setLoading(false)
       } else if (result?.ok) {
         // Login successful - verify session before redirecting
-        console.log('✅ Login successful! Result:', result)
-        console.log('⏳ Waiting for session cookie to be set...')
+        addDebugLog('✅ Login successful!')
+        addDebugLog('⏳ Waiting for session cookie to be set...')
         
         // Wait longer for cookie to be set, then verify session
         await new Promise(resolve => setTimeout(resolve, 1000))
         
         // Try to get session to verify it's set
-        const { getSession } = await import('next-auth/react')
-        let session = await getSession()
-        
-        // If no session, try again after another delay
-        if (!session) {
-          console.log('⚠️ Session not found, waiting longer...')
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          session = await getSession()
-        }
-        
-        console.log('📋 Session check result:', session ? '✅ Session found!' : '❌ No session')
-        console.log('📋 Session details:', JSON.stringify(session, null, 2))
-        
-        if (session) {
-          // Session is set, redirect with delay so user can see console
-          const redirectUrl = result.url || callbackUrl || '/admin'
-          console.log('🔄 Will redirect to:', redirectUrl, 'in 2 seconds...')
+        try {
+          const { getSession } = await import('next-auth/react')
+          addDebugLog('Checking session...')
+          let session = await getSession()
           
-          // Give user time to read console
-          setTimeout(() => {
-            console.log('🚀 Redirecting now...')
-            window.location.href = redirectUrl
-          }, 2000)
-        } else {
-          console.error('❌ Session not found after login attempts')
-          setError('Login succeeded but session not found. Check console for details.')
+          // If no session, try again after another delay
+          if (!session) {
+            addDebugLog('⚠️ Session not found, waiting longer...')
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            session = await getSession()
+          }
+          
+          addDebugLog(`📋 Session check: ${session ? '✅ Session found!' : '❌ No session'}`)
+          if (session) {
+            addDebugLog(`📋 Session user: ${session.user?.username || session.user?.email || 'unknown'}`)
+          }
+          
+          if (session) {
+            // Session is set, redirect with delay so user can see console
+            const redirectUrl = result.url || callbackUrl || '/admin'
+            addDebugLog(`🔄 Will redirect to: ${redirectUrl} in 3 seconds...`)
+            
+            // Give user more time to read debug info
+            setTimeout(() => {
+              addDebugLog('🚀 Redirecting now...')
+              window.location.href = redirectUrl
+            }, 3000)
+          } else {
+            addDebugLog('❌ Session not found after login attempts')
+            setError('Login succeeded but session not found. Check debug info above.')
+            setLoading(false)
+          }
+        } catch (sessionError) {
+          addDebugLog(`❌ Error checking session: ${sessionError}`)
+          setError('Login succeeded but could not verify session.')
           setLoading(false)
         }
       } else {
-        console.error('Unexpected result:', result)
+        addDebugLog(`❌ Unexpected result: ${JSON.stringify(result)}`)
         setError('Login failed. Please try again.')
         setLoading(false)
       }
     } catch (error) {
-      console.error('Login error:', error)
+      addDebugLog(`❌ Login error: ${error}`)
       setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
       setLoading(false)
     }
@@ -134,7 +151,16 @@ function LoginForm() {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
+            <div className="text-red-600 text-sm text-center mb-4">{error}</div>
+          )}
+
+          {debugInfo.length > 0 && (
+            <div className="bg-gray-100 p-4 rounded-md text-xs font-mono max-h-40 overflow-y-auto mb-4">
+              <div className="font-bold mb-2">Debug Info:</div>
+              {debugInfo.map((log, idx) => (
+                <div key={idx} className="text-gray-700 mb-1">{log}</div>
+              ))}
+            </div>
           )}
 
           <div>
