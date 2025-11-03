@@ -72,15 +72,15 @@ function LoginForm() {
           
           if (session) {
             // Session is set, redirect to dashboard
-            // Default to dashboard instead of just /admin
+            // Use router.push() instead of window.location.href for better cookie handling
             const redirectUrl = '/admin/dashboard'
-            addDebugLog(`🔄 Will redirect to: ${redirectUrl} in 3 seconds...`)
+            addDebugLog(`🔄 Will redirect to: ${redirectUrl} in 2 seconds...`)
             
-            // Give user more time to read debug info
+            // Give cookie time to propagate, then use router.push for better Next.js handling
             setTimeout(() => {
               addDebugLog('🚀 Redirecting now...')
-              window.location.href = redirectUrl
-            }, 3000)
+              router.push(redirectUrl)
+            }, 2000)
           } else {
             addDebugLog('❌ Session not found after login attempts')
             setError('Login succeeded but session not found. Check debug info above.')
