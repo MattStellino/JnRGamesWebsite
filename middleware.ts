@@ -15,9 +15,14 @@ export async function middleware(req: NextRequest) {
   // Protect all other admin routes
   if (pathname.startsWith('/admin')) {
     // Get the JWT token from the cookie
+    // In production, explicitly check for both cookie name formats
     const token = await getToken({ 
       req, 
-      secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development'
+      secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
+      // Ensure cookie is read correctly in production
+      cookieName: process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token' 
+        : 'next-auth.session-token'
     })
     
     // Log for debugging (both dev and production to diagnose issues)
