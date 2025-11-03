@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import CategoryTable from '@/components/admin/CategoryTable'
 
+export const dynamic = 'force-dynamic'
+
 async function getCategories() {
   const categories = await prisma.category.findMany({
     include: {

@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import ItemCard from '@/components/ItemCard'
 
+export const dynamic = 'force-dynamic'
+
 async function getCategory(id: string) {
   const category = await prisma.category.findUnique({
     where: {

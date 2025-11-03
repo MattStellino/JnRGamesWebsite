@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import ItemTable from '@/components/admin/ItemTable'
 
+export const dynamic = 'force-dynamic'
+
 async function getItems() {
   const items = await prisma.item.findMany({
     include: {

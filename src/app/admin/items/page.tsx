@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import ItemTable from '@/components/admin/ItemTable'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminItemsPage() {
   const session = await getServerSession(authOptions)
 

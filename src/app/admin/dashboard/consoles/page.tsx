@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import ConsoleTypeManager from '@/components/admin/ConsoleTypeManager'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminConsolesPage() {
   const session = await getServerSession(authOptions)
 

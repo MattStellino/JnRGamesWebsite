@@ -6,6 +6,8 @@ import ConsoleFilter from '@/components/ConsoleFilter'
 import Pagination from '@/components/Pagination'
 import StructuredData from '@/components/StructuredData'
 
+export const dynamic = 'force-dynamic'
+
 async function getItems(search?: string, category?: string, consoleType?: string, console?: string, page?: string) {
   const params = new URLSearchParams()
   if (search) params.append('search', search)

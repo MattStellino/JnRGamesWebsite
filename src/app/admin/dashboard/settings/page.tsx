@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { Shield, Database, Users, Settings as SettingsIcon } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 async function getSystemStats() {
   const [totalItems, totalCategories, totalAdmins] = await Promise.all([
     prisma.item.count(),
