@@ -47,6 +47,13 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('Auth error:', error)
+          // Log more details in development
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Auth error details:', {
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined
+            })
+          }
           return null
         }
       }
@@ -78,4 +85,7 @@ export const authOptions: NextAuthOptions = {
     signIn: '/admin/login',
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
+  // Use environment variable or auto-detect from Vercel
+  trustHost: true, // Required for Vercel deployments
+  debug: process.env.NODE_ENV === 'development',
 }

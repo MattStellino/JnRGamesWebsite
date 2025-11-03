@@ -25,12 +25,18 @@ export default function AdminLogin() {
       })
 
       if (result?.error) {
-        setError('Invalid credentials')
-      } else {
+        console.error('Sign in error:', result.error)
+        setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
+      } else if (result?.ok) {
+        // Successful login
         router.push('/admin')
+        router.refresh()
+      } else {
+        setError('Login failed. Please try again.')
       }
     } catch (error) {
-      setError('An error occurred during login')
+      console.error('Login error:', error)
+      setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
