@@ -135,14 +135,15 @@ async function getItems(search?: string, category?: string, consoleType?: string
       }
     }
   } catch (err: unknown) {
-    if (typeof console !== 'undefined') {
+    // Log error if console is available
+    try {
       if (err instanceof Error) {
-        console.error('Error fetching items:', (err as Error).message)
-        const stack = (err as Error).stack
-        if (stack) console.error('Error stack:', stack)
+        console.error('Error fetching items:', err.message)
       } else {
         console.error('Error fetching items:', String(err))
       }
+    } catch {
+      // Ignore console errors
     }
     return {
       items: [],
@@ -167,9 +168,11 @@ async function getCategories() {
     })
     return categories
   } catch (err: unknown) {
-    if (typeof console !== 'undefined') {
-      const errorMessage = err instanceof Error ? (err as Error).message : String(err)
+    try {
+      const errorMessage = err instanceof Error ? err.message : String(err)
       console.error('Error fetching categories:', errorMessage)
+    } catch {
+      // Ignore console errors
     }
     return []
   }
@@ -191,9 +194,11 @@ async function getConsoleTypes() {
     })
     return consoleTypes
   } catch (err: unknown) {
-    if (typeof console !== 'undefined') {
-      const errorMessage = err instanceof Error ? (err as Error).message : String(err)
+    try {
+      const errorMessage = err instanceof Error ? err.message : String(err)
       console.error('Error fetching console types:', errorMessage)
+    } catch {
+      // Ignore console errors
     }
     return []
   }
@@ -283,14 +288,15 @@ export default async function ItemsPage({
     </>
   )
   } catch (err: unknown) {
-    if (typeof console !== 'undefined') {
-      const errorMessage = err instanceof Error ? (err as Error).message : String(err)
+    try {
+      const errorMessage = err instanceof Error ? err.message : String(err)
       console.error('Error in ItemsPage:', errorMessage)
-      if (err instanceof Error) {
-        const stack = (err as Error).stack
-        if (stack) console.error('Error stack:', stack)
+      if (err instanceof Error && err.stack) {
+        console.error('Error stack:', err.stack)
       }
       console.error('DATABASE_URL exists:', !!process.env.DATABASE_URL)
+    } catch {
+      // Ignore console errors
     }
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
