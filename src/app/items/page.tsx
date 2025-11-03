@@ -12,6 +12,11 @@ export const dynamic = 'force-dynamic'
 
 async function getItems(search?: string, category?: string, consoleType?: string, console?: string, page?: string) {
   try {
+    // Verify database connection
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL is not configured')
+    }
+
     const pageNum = parseInt(page || '1')
     const limit = 12
     const skip = (pageNum - 1) * limit
