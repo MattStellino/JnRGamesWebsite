@@ -68,6 +68,9 @@ DATABASE_URL="postgresql://username:password@localhost:5432/buylist_db"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 
+# Formspree (Contact Form)
+FORMSPREE_ENDPOINT="https://formspree.io/f/YOUR_FORM_ID"
+
 # Admin credentials (for initial setup)
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="admin123"
@@ -158,6 +161,7 @@ Make sure to set these in your Vercel dashboard:
 - `DATABASE_URL` - Your PostgreSQL connection string
 - `NEXTAUTH_URL` - Your production URL
 - `NEXTAUTH_SECRET` - A secure random string
+- `FORMSPREE_ENDPOINT` - Your Formspree form endpoint URL (e.g., `https://formspree.io/f/YOUR_FORM_ID`)
 - `ADMIN_USERNAME` - Your admin username
 - `ADMIN_PASSWORD` - Your admin password (will be hashed)
 

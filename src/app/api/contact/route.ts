@@ -59,18 +59,55 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Log the contact form submission (in production, save to database)
-    // In production, you would save this to a database
+    // Forward to Formspree
+    const formspreeEndpoint = process.env.FORMSPREE_ENDPOINT
+    
+    if (!formspreeEndpoint) {
+      console.error('FORMSPREE_ENDPOINT environment variable is not set')
+      return NextResponse.json(
+        { error: 'Form submission service is not configured. Please contact support.' },
+        { status: 500 }
+      )
+    }
 
-    // In production, you would:
-    // 1. Save to database
-    // 2. Send email notification
-    // 3. Send auto-reply to customer
+    try {
+      const formspreeResponse = await fetch(formspreeEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone: phone || 'Not provided',
+          subject,
+          message,
+          _replyto: email, // Formspree will use this for the reply-to address
+        }),
+      })
 
-    return NextResponse.json(
-      { message: 'Message sent successfully! We\'ll get back to you soon.' },
-      { status: 200 }
-    )
+      const formspreeData = await formspreeResponse.json()
+
+      if (!formspreeResponse.ok) {
+        console.error('Formspree error:', formspreeData)
+        return NextResponse.json(
+          { error: 'Failed to send message. Please try again later.' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json(
+        { message: 'Message sent successfully! We\'ll get back to you soon.' },
+        { status: 200 }
+      )
+    } catch (fetchError) {
+      console.error('Error forwarding to Formspree:', fetchError)
+      return NextResponse.json(
+        { error: 'Failed to send message. Please try again later.' },
+        { status: 500 }
+      )
+    }
 
   } catch (error) {
     console.error('Contact form error:', error)
