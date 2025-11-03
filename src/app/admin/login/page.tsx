@@ -20,39 +20,26 @@ function LoginForm() {
     setError('')
 
     try {
-      // Add timeout to prevent hanging
-      const signInPromise = signIn('credentials', {
+      console.log('Attempting login for:', username)
+      
+      // Use NextAuth's built-in redirect on success
+      const result = await signIn('credentials', {
         username,
         password,
-        redirect: false,
-        callbackUrl,
+        redirect: true, // Let NextAuth handle redirect
+        callbackUrl: callbackUrl,
       })
 
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Login request timed out')), 10000)
-      )
-
-      const result = await Promise.race([signInPromise, timeoutPromise]) as any
-
-      if (result?.error) {
-        console.error('Sign in error:', result.error)
-        setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
-        setLoading(false)
-      } else if (result?.ok) {
-        // Successful login - redirect immediately
-        const redirectUrl = result.url || callbackUrl || '/admin'
-        console.log('Login successful, redirecting to:', redirectUrl)
-        
-        // Use window.location for reliable redirect
-        window.location.href = redirectUrl
-        // Don't set loading to false since we're redirecting
-      } else {
-        console.error('Unexpected result:', result)
-        setError('Login failed. Please try again.')
-        setLoading(false)
-      }
+      // If we get here, redirect: true didn't work, so handle manually
+      console.log('SignIn returned:', result)
+      
     } catch (error) {
       console.error('Login error:', error)
+      // If redirect: true fails, it might throw - catch and handle
+      if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+        // This is expected - NextAuth is redirecting
+        return
+      }
       setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
       setLoading(false)
     }
