@@ -30,72 +30,18 @@ function LoginForm() {
     try {
       addDebugLog(`Attempting login for: ${username}`)
       
-      // Use redirect: false to handle it manually and verify session
+      // Let NextAuth handle the redirect - it knows how to properly set cookies
+      // Use callbackUrl to redirect to dashboard after login
       const result = await signIn('credentials', {
         username,
         password,
-        redirect: false,
-        callbackUrl: callbackUrl,
+        redirect: true,
+        callbackUrl: '/admin/dashboard',
       })
 
+      // If we get here, redirect should have happened
+      // But just in case, log the result
       addDebugLog(`SignIn result: ${JSON.stringify(result)}`)
-
-      if (result?.error) {
-        addDebugLog(`❌ Sign in error: ${result.error}`)
-        setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
-        setLoading(false)
-      } else if (result?.ok) {
-        // Login successful - verify session before redirecting
-        addDebugLog('✅ Login successful!')
-        addDebugLog('⏳ Waiting for session cookie to be set...')
-        
-        // Wait longer for cookie to be set, then verify session
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Try to get session to verify it's set
-        try {
-          const { getSession } = await import('next-auth/react')
-          addDebugLog('Checking session...')
-          let session = await getSession()
-          
-          // If no session, try again after another delay
-          if (!session) {
-            addDebugLog('⚠️ Session not found, waiting longer...')
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            session = await getSession()
-          }
-          
-          addDebugLog(`📋 Session check: ${session ? '✅ Session found!' : '❌ No session'}`)
-          if (session) {
-            addDebugLog(`📋 Session user: ${session.user?.username || session.user?.email || 'unknown'}`)
-          }
-          
-          if (session) {
-            // Session is set, redirect to dashboard
-            // Use router.push() instead of window.location.href for better cookie handling
-            const redirectUrl = '/admin/dashboard'
-            addDebugLog(`🔄 Will redirect to: ${redirectUrl} in 2 seconds...`)
-            
-            // Give cookie time to propagate, then use router.push for better Next.js handling
-            setTimeout(() => {
-              addDebugLog('🚀 Redirecting now...')
-              router.push(redirectUrl)
-            }, 2000)
-          } else {
-            addDebugLog('❌ Session not found after login attempts')
-            setError('Login succeeded but session not found. Check debug info above.')
-            setLoading(false)
-          }
-        } catch (sessionError) {
-          addDebugLog(`❌ Error checking session: ${sessionError}`)
-          setError('Login succeeded but could not verify session.')
-          setLoading(false)
-        }
-      } else {
-        addDebugLog(`❌ Unexpected result: ${JSON.stringify(result)}`)
-        setError('Login failed. Please try again.')
-        setLoading(false)
-      }
     } catch (error) {
       addDebugLog(`❌ Login error: ${error}`)
       setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`)
