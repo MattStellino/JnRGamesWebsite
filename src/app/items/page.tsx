@@ -11,148 +11,173 @@ import StructuredData from '@/components/StructuredData'
 export const dynamic = 'force-dynamic'
 
 async function getItems(search?: string, category?: string, consoleType?: string, console?: string, page?: string) {
-  const pageNum = parseInt(page || '1')
-  const limit = 12
-  const skip = (pageNum - 1) * limit
+  try {
+    const pageNum = parseInt(page || '1')
+    const limit = 12
+    const skip = (pageNum - 1) * limit
 
-  // Sanitize search input
-  const sanitizedSearch = search ? sanitizeInput(search) : null
+    // Sanitize search input
+    const sanitizedSearch = search ? sanitizeInput(search) : null
 
-  const where: any = {}
+    const where: any = {}
 
-  // Handle category name filtering
-  if (category) {
-    if (category === 'consoles') {
-      where.category = { name: 'Consoles' }
-    } else if (category === 'accessories') {
-      where.category = { name: 'Accessories' }
-    } else if (category === 'handhelds') {
-      where.category = { name: 'Handhelds' }
-    } else if (category === 'controllers') {
-      where.category = { name: 'Controllers' }
-    } else if (category === 'games') {
-      where.category = { name: 'Games' }
-    } else {
-      where.category = {
-        name: { contains: category, mode: 'insensitive' }
-      }
-    }
-  }
-
-  // Handle console type filtering
-  if (consoleType) {
-    const consoleTypeId = parseInt(consoleType)
-    if (!isNaN(consoleTypeId)) {
-      where.console = {
-        consoleType: { id: consoleTypeId }
-      }
-    } else {
-      where.console = {
-        consoleType: {
-          name: { contains: consoleType, mode: 'insensitive' }
+    // Handle category name filtering
+    if (category) {
+      if (category === 'consoles') {
+        where.category = { name: 'Consoles' }
+      } else if (category === 'accessories') {
+        where.category = { name: 'Accessories' }
+      } else if (category === 'handhelds') {
+        where.category = { name: 'Handhelds' }
+      } else if (category === 'controllers') {
+        where.category = { name: 'Controllers' }
+      } else if (category === 'games') {
+        where.category = { name: 'Games' }
+      } else {
+        where.category = {
+          name: { contains: category, mode: 'insensitive' }
         }
       }
     }
-  }
 
-  // Handle specific console filtering
-  if (console) {
-    if (console === 'all') {
-      if (!consoleType) {
-        where.console = { isNot: null }
-      }
-    } else {
-      where.consoleId = parseInt(console)
-    }
-  }
-
-  // Handle search
-  if (sanitizedSearch) {
-    where.OR = [
-      { name: { contains: sanitizedSearch, mode: 'insensitive' } },
-      { description: { contains: sanitizedSearch, mode: 'insensitive' } },
-      { 
-        console: {
-          name: { contains: sanitizedSearch, mode: 'insensitive' }
+    // Handle console type filtering
+    if (consoleType) {
+      const consoleTypeId = parseInt(consoleType)
+      if (!isNaN(consoleTypeId)) {
+        where.console = {
+          consoleType: { id: consoleTypeId }
         }
-      },
-      { 
-        console: {
+      } else {
+        where.console = {
           consoleType: {
+            name: { contains: consoleType, mode: 'insensitive' }
+          }
+        }
+      }
+    }
+
+    // Handle specific console filtering
+    if (console) {
+      if (console === 'all') {
+        if (!consoleType) {
+          where.console = { isNot: null }
+        }
+      } else {
+        where.consoleId = parseInt(console)
+      }
+    }
+
+    // Handle search
+    if (sanitizedSearch) {
+      where.OR = [
+        { name: { contains: sanitizedSearch, mode: 'insensitive' } },
+        { description: { contains: sanitizedSearch, mode: 'insensitive' } },
+        { 
+          console: {
+            name: { contains: sanitizedSearch, mode: 'insensitive' }
+          }
+        },
+        { 
+          console: {
+            consoleType: {
+              name: { contains: sanitizedSearch, mode: 'insensitive' }
+            }
+          }
+        },
+        { 
+          category: {
             name: { contains: sanitizedSearch, mode: 'insensitive' }
           }
         }
+      ]
+    }
+
+    // Get total count for pagination
+    const totalItems = await prisma.item.count({ where })
+
+    // Get paginated items
+    const items = await prisma.item.findMany({
+      where,
+      include: {
+        category: true,
+        console: {
+          include: {
+            consoleType: true
+          }
+        }
       },
-      { 
-        category: {
-          name: { contains: sanitizedSearch, mode: 'insensitive' }
-        }
+      orderBy: {
+        name: 'asc',
+      },
+      skip,
+      take: limit,
+    })
+
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalItems / limit)
+    const hasNextPage = pageNum < totalPages
+    const hasPrevPage = pageNum > 1
+
+    return {
+      items,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit,
+        hasNextPage,
+        hasPrevPage,
       }
-    ]
-  }
-
-  // Get total count for pagination
-  const totalItems = await prisma.item.count({ where })
-
-  // Get paginated items
-  const items = await prisma.item.findMany({
-    where,
-    include: {
-      category: true,
-      console: {
-        include: {
-          consoleType: true
-        }
+    }
+  } catch (error) {
+    console.error('Error fetching items:', error)
+    return {
+      items: [],
+      pagination: {
+        currentPage: 1,
+        totalPages: 0,
+        totalItems: 0,
+        itemsPerPage: 12,
+        hasNextPage: false,
+        hasPrevPage: false,
       }
-    },
-    orderBy: {
-      name: 'asc',
-    },
-    skip,
-    take: limit,
-  })
-
-  // Calculate pagination info
-  const totalPages = Math.ceil(totalItems / limit)
-  const hasNextPage = pageNum < totalPages
-  const hasPrevPage = pageNum > 1
-
-  return {
-    items,
-    pagination: {
-      currentPage: pageNum,
-      totalPages,
-      totalItems,
-      itemsPerPage: limit,
-      hasNextPage,
-      hasPrevPage,
     }
   }
 }
 
 async function getCategories() {
-  const categories = await prisma.category.findMany({
-    orderBy: {
-      name: 'asc',
-    },
-  })
-  return categories
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: {
+        name: 'asc',
+      },
+    })
+    return categories
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    return []
+  }
 }
 
 async function getConsoleTypes() {
-  const consoleTypes = await prisma.consoleType.findMany({
-    include: {
-      consoles: {
-        orderBy: {
-          name: 'asc'
+  try {
+    const consoleTypes = await prisma.consoleType.findMany({
+      include: {
+        consoles: {
+          orderBy: {
+            name: 'asc'
+          }
         }
-      }
-    },
-    orderBy: {
-      name: 'asc',
-    },
-  })
-  return consoleTypes
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    })
+    return consoleTypes
+  } catch (error) {
+    console.error('Error fetching console types:', error)
+    return []
+  }
 }
 
 export default async function ItemsPage({
@@ -160,16 +185,17 @@ export default async function ItemsPage({
 }: {
   searchParams: Promise<{ search?: string; category?: string; consoleType?: string; console?: string; page?: string }>
 }) {
-  const resolvedSearchParams = await searchParams
-  const [itemsData, categories, consoleTypes] = await Promise.all([
-    getItems(resolvedSearchParams.search, resolvedSearchParams.category, resolvedSearchParams.consoleType, resolvedSearchParams.console, resolvedSearchParams.page),
-    getCategories(),
-    getConsoleTypes()
-  ])
+  try {
+    const resolvedSearchParams = await searchParams
+    const [itemsData, categories, consoleTypes] = await Promise.all([
+      getItems(resolvedSearchParams.search, resolvedSearchParams.category, resolvedSearchParams.consoleType, resolvedSearchParams.console, resolvedSearchParams.page),
+      getCategories(),
+      getConsoleTypes()
+    ])
 
-  const { items, pagination } = itemsData
+    const { items, pagination } = itemsData
 
-  return (
+    return (
     <>
       <StructuredData type="ItemList" data={items} />
       <div className="min-h-screen">
@@ -237,4 +263,25 @@ export default async function ItemsPage({
       </div>
     </>
   )
+  } catch (error) {
+    console.error('Error in ItemsPage:', error)
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Items</h1>
+            <p className="text-gray-600 mb-6">
+              We're having trouble loading items. Please try again later.
+            </p>
+            <a
+              href="/"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Go Home
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
