@@ -45,14 +45,13 @@ function LoginForm() {
         setError(result.error === 'CredentialsSignin' ? 'Invalid username or password' : `Login failed: ${result.error}`)
         setLoading(false)
       } else if (result?.ok) {
-        // Login successful - let NextAuth handle the redirect
-        // Using redirect: true ensures cookies are properly set and sent
+        // Login successful - use relative URL to avoid NEXTAUTH_URL issues
         addDebugLog('✅ Login successful!')
-        addDebugLog('🔄 Redirecting via NextAuth...')
+        addDebugLog('🔄 Redirecting to dashboard...')
         
-        // Use NextAuth's built-in redirect which properly handles cookies
-        // This is more reliable than manual redirects
-        window.location.href = result.url || '/admin/dashboard'
+        // Always use relative URL to avoid redirecting to wrong domain
+        // This works for both local and production
+        window.location.href = '/admin/dashboard'
       } else {
         addDebugLog(`❌ Unexpected result: ${JSON.stringify(result)}`)
         setError('Login failed. Please try again.')
