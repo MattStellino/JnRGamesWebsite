@@ -196,7 +196,7 @@ export default async function AdminDashboard() {
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Welcome back, {session.user?.name || session.user?.email || 'Admin'}!</h1>
+            <h1 className="text-4xl font-bold mb-2">Welcome back, {session?.user?.name || session?.user?.email || 'Admin'}!</h1>
             <p className="text-blue-100 text-lg">Here's your inventory overview and key insights</p>
           </div>
           <div className="hidden md:block">
