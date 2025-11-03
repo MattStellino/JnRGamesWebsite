@@ -25,8 +25,8 @@ async function getDashboardStats() {
     recentItems,
     itemsByCategory,
     itemsByConsoleType,
-    lowStockItems,
-    highValueItems
+    lowStockItems
+    // highValueItems - commented out for analytics removal
   ] = await Promise.all([
     prisma.item.count(),
     prisma.category.count(),
@@ -76,26 +76,27 @@ async function getDashboardStats() {
       orderBy: {
         price: 'asc'
       }
-    }),
-    prisma.item.findMany({
-      where: {
-        price: {
-          gt: 50
-        }
-      },
-      take: 5,
-      include: {
-        category: true,
-        console: {
-          include: {
-            consoleType: true
-          }
-        }
-      },
-      orderBy: {
-        price: 'desc'
-      }
     })
+    // High value items query - commented out for analytics removal
+    // prisma.item.findMany({
+    //   where: {
+    //     price: {
+    //       gt: 50
+    //     }
+    //   },
+    //   take: 5,
+    //   include: {
+    //     category: true,
+    //     console: {
+    //       include: {
+    //         consoleType: true
+    //       }
+    //     }
+    //   },
+    //   orderBy: {
+    //     price: 'desc'
+    //   }
+    // })
   ])
 
   return {
@@ -106,8 +107,8 @@ async function getDashboardStats() {
     recentItems,
     itemsByCategory,
     itemsByConsoleType,
-    lowStockItems,
-    highValueItems
+    lowStockItems
+    // highValueItems - commented out for analytics removal
   }
 }
 
@@ -123,8 +124,8 @@ export default async function AdminDashboard() {
     recentItems, 
     itemsByCategory,
     itemsByConsoleType,
-    lowStockItems,
-    highValueItems
+    lowStockItems
+    // highValueItems - commented out for analytics removal
   } = await getDashboardStats()
 
   const stats = [
@@ -325,8 +326,8 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* High Value Items */}
-      <div className="bg-white rounded-xl shadow-sm border">
+      {/* High Value Items - commented out for analytics removal */}
+      {/* <div className="bg-white rounded-xl shadow-sm border">
         <div className="px-6 py-4 border-b border-gray-200 flex items-center">
           <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
           <h2 className="text-lg font-semibold text-gray-900">High Value Items</h2>
@@ -354,7 +355,7 @@ export default async function AdminDashboard() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
