@@ -7,6 +7,14 @@ import AdminLogout from '@/components/AdminLogout'
 export default async function AdminDashboard() {
   const session = await getServerSession(authOptions)
 
+  // Add logging to debug session issues
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Admin page - Session check:', session ? 'Found' : 'Not found')
+    if (session) {
+      console.log('Session user:', session.user)
+    }
+  }
+
   if (!session) {
     redirect('/admin/login')
   }

@@ -86,5 +86,19 @@ export const authOptions: NextAuthOptions = {
     signIn: '/admin/login',
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
-  // Let NextAuth handle cookies automatically - custom config was causing issues
+  // Cookie configuration for Vercel
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        // Don't set domain - let browser handle it
+        // This ensures cookies work on Vercel subdomains
+      },
+    },
+  },
 }
