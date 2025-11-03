@@ -134,17 +134,7 @@ async function getItems(search?: string, category?: string, consoleType?: string
         hasPrevPage,
       }
     }
-  } catch (err: unknown) {
-    // Log error if console is available
-    try {
-      if (err instanceof Error) {
-        console.error('Error fetching items:', err.message)
-      } else {
-        console.error('Error fetching items:', String(err))
-      }
-    } catch {
-      // Ignore console errors
-    }
+  } catch {
     return {
       items: [],
       pagination: {
@@ -167,13 +157,7 @@ async function getCategories() {
       },
     })
     return categories
-  } catch (err: unknown) {
-    try {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      console.error('Error fetching categories:', errorMessage)
-    } catch {
-      // Ignore console errors
-    }
+  } catch {
     return []
   }
 }
@@ -193,13 +177,7 @@ async function getConsoleTypes() {
       },
     })
     return consoleTypes
-  } catch (err: unknown) {
-    try {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      console.error('Error fetching console types:', errorMessage)
-    } catch {
-      // Ignore console errors
-    }
+  } catch {
     return []
   }
 }
@@ -287,17 +265,7 @@ export default async function ItemsPage({
       </div>
     </>
   )
-  } catch (err: unknown) {
-    try {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      console.error('Error in ItemsPage:', errorMessage)
-      if (err instanceof Error && err.stack) {
-        console.error('Error stack:', err.stack)
-      }
-      console.error('DATABASE_URL exists:', !!process.env.DATABASE_URL)
-    } catch {
-      // Ignore console errors
-    }
+  } catch {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center">
