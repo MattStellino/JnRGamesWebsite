@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ConsoleType {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  consoles  Console[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Console {
+  id           Int         @id @default(autoincrement())
+  name         String      @unique
+  consoleType  ConsoleType @relation(fields: [consoleTypeId], references: [id], onDelete: Cascade)
+  consoleTypeId Int
+  items        Item[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  items     Item[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Item {
+  id                    Int      @id @default(autoincrement())
+  name                  String
+  description           String?
+  price                 Float    // Highest price (for display)
+  acceptablePrice       Float?   // Acceptable condition price
+  goodPrice             Float?   // Good condition price
+  consoleOnlyPrice      Float?   // Console only price
+  consoleWithController Float?   // Console with controller price
+  completeConsolePrice  Float?   // Complete console price
+  imageUrl              String?
+  console               Console  @relation(fields: [consoleId], references: [id], onDelete: Cascade)
+  consoleId             Int
+  category              Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId            Int
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

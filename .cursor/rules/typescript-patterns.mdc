@@ -1,0 +1,54 @@
+---
+globs: *.ts,*.tsx
+---
+
+# TypeScript Patterns
+
+## Type Definitions
+- Use interfaces from [src/types/index.ts](mdc:src/types/index.ts)
+- Extend Prisma types when needed
+- Use proper type annotations for all functions
+- Avoid `any` type - use specific types or generics
+
+## Component Props
+```typescript
+interface ComponentProps {
+  // Use specific types, not any
+  item: Item
+  onUpdate: (item: Item) => void
+  // Optional props with proper typing
+  className?: string
+}
+```
+
+## API Response Types
+```typescript
+// Use proper response typing
+const response = await fetch('/api/items')
+const items: Item[] = await response.json()
+```
+
+## Prisma Types
+- Use Prisma generated types
+- Extend with relations when needed
+- Use proper type assertions for database operations
+
+## Error Handling
+```typescript
+try {
+  // Operation
+} catch (error) {
+  // Type the error properly
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+}
+```
+
+## Form Data Types
+```typescript
+interface FormData {
+  name: string
+  price: string // Keep as string for form inputs
+  categoryId: string
+  // Convert to proper types on submission
+}
+```

@@ -1,0 +1,49 @@
+---
+globs: src/components/**/*.tsx
+---
+
+# React Component Patterns
+
+## Component Structure
+- Use TypeScript interfaces for props
+- Implement proper prop validation
+- Use functional components with hooks
+- Follow the single responsibility principle
+
+## Styling Guidelines
+- Use Tailwind CSS classes consistently
+- Follow the existing design system
+- Use responsive design patterns (grid, flexbox)
+- Implement hover states and transitions
+
+## Common Patterns
+
+### Item Display Components
+- Use [ItemCard.tsx](mdc:src/components/ItemCard.tsx) as reference
+- Include image handling with Next.js Image component
+- Show price formatting with `toFixed(2)`
+- Implement proper link navigation
+
+### Form Components
+- Use controlled components with useState
+- Implement proper form validation
+- Show loading states during submission
+- Use modal patterns for forms (see [ItemForm.tsx](mdc:src/components/admin/ItemForm.tsx))
+
+### Filter Components
+- Use dropdown/select elements for filtering
+- Implement cascading dropdowns (ConsoleType → Console)
+- Reset dependent selections when parent changes
+
+## Props Interface Pattern
+```typescript
+interface ComponentProps {
+  // Required props first
+  requiredProp: string
+  // Optional props with default values
+  optionalProp?: string
+  // Event handlers
+  onSubmit: (data: any) => void
+  onCancel: () => void
+}
+```

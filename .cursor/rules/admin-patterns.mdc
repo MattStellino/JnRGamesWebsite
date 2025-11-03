@@ -1,0 +1,42 @@
+---
+globs: src/app/admin/**/*.tsx,src/components/admin/**/*.tsx
+---
+
+# Admin Interface Patterns
+
+## Authentication
+- Use NextAuth.js session management
+- Protect admin routes with middleware
+- Redirect unauthenticated users to login
+- Use server-side session checks
+
+## Admin Layout
+- Use [AdminSidebar.tsx](mdc:src/components/admin/AdminSidebar.tsx) for navigation
+- Implement responsive mobile navigation
+- Show current page in sidebar
+- Use consistent admin styling
+
+## CRUD Operations
+- Use modal forms for create/edit operations
+- Implement confirmation dialogs for deletions
+- Show loading states during operations
+- Use toast notifications for feedback
+
+## Form Patterns
+- Use controlled components with useState
+- Implement proper validation
+- Handle cascading dropdowns (ConsoleType → Console)
+- Show image previews when URLs are provided
+- Use proper form submission with loading states
+
+## Table Patterns
+- Use responsive table layouts
+- Implement search and filtering
+- Show action buttons (Edit, Delete)
+- Use confirmation modals for destructive actions
+
+## Error Handling
+- Show user-friendly error messages
+- Use toast notifications for feedback
+- Handle network errors gracefully
+- Validate data before submission

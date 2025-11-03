@@ -1,0 +1,45 @@
+---
+description: Database schema and Prisma patterns
+---
+
+# Database Schema & Prisma Patterns
+
+## Schema Overview
+The database uses PostgreSQL with the following main entities:
+
+- **Admin**: User authentication for admin access
+- **ConsoleType**: Categories of gaming consoles (e.g., "Nintendo", "PlayStation")
+- **Console**: Specific console models (e.g., "Nintendo Switch", "PS5")
+- **Category**: Item categories (e.g., "Games", "Accessories")
+- **Item**: Individual items with pricing and metadata
+
+## Key Relationships
+- ConsoleType → Console (one-to-many)
+- Console → Item (one-to-many)
+- Category → Item (one-to-many)
+
+## Prisma Patterns
+- Always use the singleton pattern from [src/lib/prisma.ts](mdc:src/lib/prisma.ts)
+- Include related data using Prisma's `include` option
+- Use proper error handling in API routes
+- Validate foreign key relationships before creating items
+
+## Common Queries
+```typescript
+// Get items with relations
+const items = await prisma.item.findMany({
+  include: {
+    category: true,
+    console: {
+      include: {
+        consoleType: true
+      }
+    }
+  }
+})
+
+// Filter by category and console
+const where: any = {}
+if (categoryId) where.categoryId = parseInt(categoryId)
+if (consoleId) where.consoleId = parseInt(consoleId)
+```

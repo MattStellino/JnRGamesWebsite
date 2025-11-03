@@ -1,0 +1,108 @@
+---
+description: PowerShell syntax and Windows-specific commands
+---
+
+# PowerShell Syntax Guidelines
+
+## Windows Environment
+This project runs on Windows with PowerShell as the default shell. Always use proper PowerShell syntax and commands.
+
+## Common PowerShell Commands
+
+### Directory Operations
+```powershell
+# Create directory
+New-Item -ItemType Directory -Path "path/to/directory"
+# or
+mkdir directory-name
+
+# List directory contents
+Get-ChildItem
+# or
+ls
+
+# Change directory
+Set-Location "path"
+# or
+cd "path"
+```
+
+### File Operations
+```powershell
+# Create file
+New-Item -ItemType File -Path "filename.txt"
+# or
+echo $null > filename.txt
+
+# Copy file
+Copy-Item "source.txt" "destination.txt"
+# or
+cp "source.txt" "destination.txt"
+
+# Move file
+Move-Item "source.txt" "destination.txt"
+# or
+mv "source.txt" "destination.txt"
+
+# Remove file
+Remove-Item "filename.txt"
+# or
+rm "filename.txt"
+```
+
+### Environment Variables
+```powershell
+# Set environment variable
+$env:VARIABLE_NAME = "value"
+
+# Get environment variable
+$env:VARIABLE_NAME
+
+# Check if variable exists
+if ($env:VARIABLE_NAME) { "Variable exists" }
+```
+
+### Node.js/NPM Commands
+```powershell
+# Install dependencies
+npm install
+
+# Run scripts
+npm run dev
+npm run build
+npm run db:push
+
+# Run with specific Node version
+npx tsx scripts/seed.ts
+```
+
+### Database Commands
+```powershell
+# Prisma commands
+npx prisma db push
+npx prisma generate
+npx prisma studio
+npx prisma migrate dev
+```
+
+## Path Handling
+- Use forward slashes `/` in paths when possible (PowerShell handles both)
+- Use quotes around paths with spaces: `"C:\Program Files\Node.js"`
+- Use `$PWD` for current working directory
+- Use `~` for user home directory
+
+## Error Handling
+```powershell
+# Check if command succeeded
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Command succeeded" -ForegroundColor Green
+} else {
+    Write-Host "Command failed" -ForegroundColor Red
+}
+```
+
+## Common Patterns
+- Use `Write-Host` instead of `echo` for colored output
+- Use `-Force` flag to overwrite existing files
+- Use `-Recurse` flag for recursive operations
+- Use `-ErrorAction SilentlyContinue` to suppress errors

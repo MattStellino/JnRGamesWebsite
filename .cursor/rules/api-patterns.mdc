@@ -1,0 +1,47 @@
+---
+globs: src/app/api/**/*.ts
+---
+
+# API Route Patterns
+
+## Standard API Structure
+All API routes follow these patterns:
+
+### GET Routes
+- Use `NextRequest` for type safety
+- Extract query parameters using `searchParams`
+- Implement proper error handling with try/catch
+- Return `NextResponse.json()` with appropriate status codes
+
+### POST/PUT/DELETE Routes
+- Validate required fields before processing
+- Check foreign key relationships exist
+- Use proper HTTP status codes (201 for creation, 200 for updates)
+- Include related data in responses using Prisma `include`
+
+### Error Handling
+```typescript
+try {
+  // API logic
+} catch (error) {
+  return NextResponse.json(
+    { error: 'Descriptive error message' },
+    { status: 500 }
+  )
+}
+```
+
+### Validation Pattern
+```typescript
+if (!requiredField) {
+  return NextResponse.json(
+    { error: 'Field is required' },
+    { status: 400 }
+  )
+}
+```
+
+## File Naming
+- `route.ts` for main CRUD operations
+- `[id]/route.ts` for operations on specific resources
+- Use RESTful conventions (GET, POST, PUT, DELETE)

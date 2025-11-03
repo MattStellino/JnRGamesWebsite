@@ -1,0 +1,31 @@
+---
+alwaysApply: true
+---
+
+# J&R Games Buylist Application
+
+This is a Next.js 15 application for J&R Games buylist management. The app allows users to browse gaming items with filtering capabilities and provides an admin interface for managing items, categories, and console types.
+
+## Tech Stack
+- **Framework**: Next.js 15 with App Router
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js with credentials provider
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Notifications**: React Hot Toast
+
+## Key Features
+- Public item browsing with search and filtering
+- Admin dashboard for CRUD operations
+- Console type and console management
+- Category management
+- Image support for items
+- Responsive design
+
+## Project Structure
+- [src/app/](mdc:src/app/) - Next.js App Router pages and API routes
+- [src/components/](mdc:src/components/) - Reusable React components
+- [src/lib/](mdc:src/lib/) - Utility functions and configurations
+- [src/types/](mdc:src/types/) - TypeScript type definitions
+- [prisma/](mdc:prisma/) - Database schema and migrations
+- [scripts/](mdc:scripts/) - Database seeding and migration scripts

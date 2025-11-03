@@ -1,0 +1,40 @@
+---
+description: Development workflow and best practices
+---
+
+# Development Workflow
+
+## Database Operations
+- Use `npm run db:push` to sync schema changes
+- Use `npm run db:generate` to regenerate Prisma client
+- Use `npm run db:studio` to view/edit data
+- Use `npm run db:seed` to populate initial data
+
+## Code Organization
+- Keep components focused and reusable
+- Use proper file naming conventions
+- Group related functionality together
+- Follow the established folder structure
+
+## Testing & Debugging
+- Use browser dev tools for debugging
+- Check network tab for API issues
+- Use Prisma Studio for database inspection
+- Test both desktop and mobile views
+
+## Performance Considerations
+- Use Next.js Image component for images
+- Implement proper loading states
+- Use React.memo for expensive components
+- Optimize database queries with proper includes
+
+## Security
+- Validate all user inputs
+- Use proper authentication checks
+- Sanitize data before database operations
+- Use environment variables for sensitive data
+
+## Deployment
+- Test all functionality before deployment
+- Ensure environment variables are set
+- Run database migrations if needed (`npm run db:migrate`)

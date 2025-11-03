@@ -1,0 +1,59 @@
+---
+alwaysApply: true
+description: "Modern web development best practices for performance, accessibility, security, and maintainability"
+---
+
+# Modern Web Development Best Practices
+
+## Performance & Core Web Vitals
+- **Optimize images**: Use Next.js Image component with proper sizing, lazy loading, and modern formats (WebP, AVIF)
+- **Code splitting**: Implement dynamic imports and route-based code splitting
+- **Bundle optimization**: Minimize bundle size, tree-shake unused code, and use proper chunking strategies
+- **Caching**: Implement proper HTTP caching headers, service workers, and CDN strategies
+- **Core Web Vitals**: Optimize LCP (<2.5s), FID (<100ms), CLS (<0.1)
+
+## Accessibility (WCAG 2.1 AA)
+- **Semantic HTML**: Use proper heading hierarchy (h1-h6), landmarks, and semantic elements
+- **ARIA attributes**: Implement proper ARIA labels, roles, and states for interactive elements
+- **Keyboard navigation**: Ensure all interactive elements are keyboard accessible
+- **Color contrast**: Maintain minimum 4.5:1 contrast ratio for normal text, 3:1 for large text
+- **Screen reader support**: Provide alt text for images, descriptive link text, and form labels
+
+## Security Best Practices
+- **Input validation**: Sanitize and validate all user inputs on both client and server
+- **Authentication**: Use secure session management, JWT tokens, and proper password hashing
+- **HTTPS**: Enforce HTTPS in production with proper SSL/TLS configuration
+- **CSP**: Implement Content Security Policy headers to prevent XSS attacks
+- **Dependencies**: Regularly update dependencies and audit for vulnerabilities
+
+## Code Quality & Maintainability
+- **TypeScript**: Use strict TypeScript configuration with proper type definitions
+- **ESLint/Prettier**: Enforce consistent code style and catch potential issues
+- **Testing**: Implement unit tests, integration tests, and E2E tests where appropriate
+- **Error handling**: Implement proper error boundaries and graceful error handling
+- **Documentation**: Write clear, self-documenting code with JSDoc comments
+
+## Modern React/Next.js Patterns
+- **Server Components**: Use React Server Components for better performance and SEO
+- **App Router**: Leverage Next.js 13+ App Router for improved routing and layouts
+- **Streaming**: Implement streaming SSR for faster page loads
+- **Middleware**: Use Next.js middleware for authentication, redirects, and request processing
+- **API Routes**: Follow RESTful conventions and implement proper error handling
+
+## Database & Data Management
+- **ORM Best Practices**: Use Prisma with proper schema design and query optimization
+- **Database Security**: Implement proper connection pooling, prepared statements, and access controls
+- **Data Validation**: Validate data at both API and database levels
+- **Migrations**: Use proper database migration strategies for schema changes
+
+## SEO & Meta Tags
+- **Structured Data**: Implement JSON-LD structured data for better search visibility
+- **Meta Tags**: Use proper title, description, and Open Graph tags
+- **Sitemap**: Generate and maintain XML sitemaps
+- **Robots.txt**: Configure proper robots.txt for search engine crawling
+
+## Development Workflow
+- **Git**: Use conventional commits, proper branching strategies, and code reviews
+- **CI/CD**: Implement automated testing, linting, and deployment pipelines
+- **Environment Management**: Use proper environment variable management
+- **Monitoring**: Implement error tracking, performance monitoring, and analytics

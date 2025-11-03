@@ -1,0 +1,625 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import { Edit, Trash2, Search, Filter, SortAsc, SortDesc, X, Eye, EyeOff } from 'lucide-react'
+import toast from 'react-hot-toast'
+import ItemForm from './ItemForm'
+import ConfirmModal from './ConfirmModal'
+import AdminPagination from './AdminPagination'
+
+interface Category {
+  id: number
+  name: string
+}
+
+interface Console {
+  id: number
+  name: string
+  consoleTypeId: number
+}
+
+interface ConsoleType {
+  id: number
+  name: string
+  consoles: Console[]
+}
+
+interface Item {
+  id: number
+  name: string
+  description?: string | null
+  price: number
+  acceptablePrice?: number | null
+  goodPrice?: number | null
+  consoleOnlyPrice?: number | null
+  consoleWithController?: number | null
+  completeConsolePrice?: number | null
+  imageUrl?: string | null
+  categoryId: number
+  category: Category
+  consoleId: number
+  console?: Console
+  createdAt: string
+  updatedAt: string
+}
+
+interface ItemFormData {
+  id: number
+  name: string
+  description?: string | null
+  price: number
+  acceptablePrice?: number | null
+  goodPrice?: number | null
+  consoleOnlyPrice?: number | null
+  consoleWithController?: number | null
+  completeConsolePrice?: number | null
+  imageUrl?: string | null
+  categoryId: number
+  consoleId: number
+}
+
+interface ItemTableProps {
+  initialItems: Item[]
+  categories: Category[]
+  consoleTypes: ConsoleType[]
+}
+
+export default function ItemTable({ initialItems, categories, consoleTypes }: ItemTableProps) {
+  const [items, setItems] = useState(initialItems)
+  const [filteredItems, setFilteredItems] = useState(initialItems)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedConsoleType, setSelectedConsoleType] = useState('')
+  const [selectedConsole, setSelectedConsole] = useState('')
+  const [sortBy, setSortBy] = useState('name')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [showForm, setShowForm] = useState(false)
+  const [editingItem, setEditingItem] = useState<ItemFormData | null>(null)
+  const [deleteItem, setDeleteItem] = useState<Item | null>(null)
+  const [loading, setLoading] = useState(false)
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [showFilters, setShowFilters] = useState(false)
+
+  // Ref to scroll to the form when opening create/edit
+  const formContainerRef = useRef<HTMLDivElement | null>(null)
+
+  // Filter and sort items
+  const filterAndSortItems = () => {
+    let filtered = items
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    // Category filter
+    if (selectedCategory) {
+      filtered = filtered.filter(item => item.categoryId === parseInt(selectedCategory))
+    }
+
+    // Console type filter
+    if (selectedConsoleType) {
+      filtered = filtered.filter(item => 
+        item.console?.consoleTypeId === parseInt(selectedConsoleType)
+      )
+    }
+
+    // Console filter
+    if (selectedConsole) {
+      filtered = filtered.filter(item => item.consoleId === parseInt(selectedConsole))
+    }
+
+    // Sort items
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase()
+          bValue = b.name.toLowerCase()
+          break
+        case 'price':
+          aValue = a.price
+          bValue = b.price
+          break
+        case 'category':
+          aValue = a.category.name.toLowerCase()
+          bValue = b.category.name.toLowerCase()
+          break
+        case 'created':
+          aValue = new Date(a.createdAt).getTime()
+          bValue = new Date(b.createdAt).getTime()
+          break
+        default:
+          aValue = a.name.toLowerCase()
+          bValue = b.name.toLowerCase()
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
+      }
+    })
+
+    setFilteredItems(filtered)
+    setCurrentPage(1) // Reset to first page when filters change
+  }
+
+  // Initialize filtered items on mount
+  useEffect(() => {
+    setFilteredItems(initialItems)
+  }, [initialItems])
+
+  // Trigger filtering when items change
+  useEffect(() => {
+    if (items.length > 0) {
+      filterAndSortItems()
+    }
+  }, [items, searchTerm, selectedCategory, selectedConsoleType, selectedConsole, sortBy, sortOrder])
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
+
+  const handleCategoryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(e.target.value)
+  }
+
+  const handleConsoleTypeFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedConsoleType(e.target.value)
+    setSelectedConsole('') // Reset console when console type changes
+  }
+
+  const handleConsoleFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedConsole(e.target.value)
+  }
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(field)
+      setSortOrder('asc')
+    }
+  }
+
+  const clearFilters = () => {
+    setSearchTerm('')
+    setSelectedCategory('')
+    setSelectedConsoleType('')
+    setSelectedConsole('')
+    setSortBy('name')
+    setSortOrder('asc')
+    setCurrentPage(1)
+  }
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentItems = filteredItems.slice(startIndex, endIndex)
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    // Scroll to top of table when page changes
+    const tableElement = document.getElementById('items-table')
+    if (tableElement) {
+      tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  const handleCreate = () => {
+    setEditingItem(null)
+    setShowForm(true)
+  }
+
+  const handleEdit = (item: Item) => {
+    setEditingItem({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      acceptablePrice: item.acceptablePrice,
+      goodPrice: item.goodPrice,
+      consoleOnlyPrice: item.consoleOnlyPrice,
+      consoleWithController: item.consoleWithController,
+      completeConsolePrice: item.completeConsolePrice,
+      imageUrl: item.imageUrl,
+      categoryId: item.categoryId,
+      consoleId: item.consoleId
+    })
+    setShowForm(true)
+  }
+
+  // When the form opens, scroll it into view smoothly
+  useEffect(() => {
+    if (showForm && formContainerRef.current) {
+      // Defer to next tick to ensure the form is mounted
+      setTimeout(() => {
+        formContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 0)
+    }
+  }, [showForm])
+
+  const handleDelete = async (item: Item) => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/items/${item.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setItems(items.filter(i => i.id !== item.id))
+        toast.success('Item deleted successfully')
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete item')
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting the item')
+    } finally {
+      setLoading(false)
+      setDeleteItem(null)
+    }
+  }
+
+  const handleFormSubmit = (item: ItemFormData) => {
+    if (editingItem) {
+      // Update existing item
+      setItems(items.map(i => i.id === item.id ? {
+        ...i,
+        ...item,
+        category: i.category,
+        console: i.console
+      } : i))
+      toast.success('Item updated successfully')
+    } else {
+      // Add new item - convert to full Item type
+      const newItem: Item = {
+        ...item,
+        category: categories.find(c => c.id === item.categoryId)!,
+        console: consoleTypes
+          .flatMap(ct => ct.consoles)
+          .find(c => c.id === item.consoleId),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      setItems([...items, newItem])
+      toast.success('Item created successfully')
+    }
+    setShowForm(false)
+    setEditingItem(null)
+  }
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Items</h1>
+          <p className="text-gray-600">Manage your gaming items and prices</p>
+        </div>
+        <button
+          onClick={handleCreate}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+        >
+          <span className="mr-2">+</span>
+          Add Item
+        </button>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="bg-white rounded-lg shadow-sm border mb-6">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Filters & Search</h3>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                {showFilters ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </button>
+              <button
+                onClick={clearFilters}
+                className="flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Clear All
+              </button>
+            </div>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search items by name or description..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            />
+          </div>
+        </div>
+        
+        {/* Collapsible Filters */}
+        {showFilters && (
+          <div className="p-6 pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              {/* Category Filter */}
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <select
+                  value={selectedCategory}
+                  onChange={handleCategoryFilter}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-black text-sm"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Console Type Filter */}
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <select
+                  value={selectedConsoleType}
+                  onChange={handleConsoleTypeFilter}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-black text-sm"
+                >
+                  <option value="">All Console Types</option>
+                  {consoleTypes.map((consoleType) => (
+                    <option key={consoleType.id} value={consoleType.id}>
+                      {consoleType.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Console Filter */}
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <select
+                  value={selectedConsole}
+                  onChange={handleConsoleFilter}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-black text-sm"
+                  disabled={!selectedConsoleType}
+                >
+                  <option value="">All Consoles</option>
+                  {selectedConsoleType && consoleTypes
+                    .find(ct => ct.id === parseInt(selectedConsoleType))
+                    ?.consoles.map((console) => (
+                      <option key={console.id} value={console.id}>
+                        {console.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Sort Options */}
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700">Sort by:</span>
+              <div className="flex space-x-2">
+                {[
+                  { key: 'name', label: 'Name' },
+                  { key: 'price', label: 'Price' },
+                  { key: 'category', label: 'Category' },
+                  { key: 'created', label: 'Date Created' }
+                ].map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => handleSort(option.key)}
+                    className={`flex items-center px-3 py-1 text-sm rounded-lg transition-colors ${
+                      sortBy === option.key
+                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                        : 'text-gray-600 hover:bg-gray-100 border border-transparent'
+                    }`}
+                  >
+                    {option.label}
+                    {sortBy === option.key && (
+                      sortOrder === 'asc' ? (
+                        <SortAsc className="h-4 w-4 ml-1" />
+                      ) : (
+                        <SortDesc className="h-4 w-4 ml-1" />
+                      )
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Items Table */}
+      <div className="bg-white rounded-lg shadow-sm border overflow-hidden" id="items-table">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Item
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Console
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Created
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {currentItems.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      {item.imageUrl && (
+                        <img
+                          className="h-10 w-10 rounded-lg object-cover mr-3"
+                          src={item.imageUrl}
+                          alt={item.name}
+                        />
+                      )}
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {item.name}
+                        </div>
+                        {item.description && (
+                          <div className="text-sm text-gray-500 truncate max-w-xs">
+                            {item.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {item.category.name}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {item.console?.name || 'N/A'}
+                    </div>
+                    {item.console && (
+                      <div className="text-xs text-gray-500">
+                        {consoleTypes.find(ct => ct.id === item.console?.consoleTypeId)?.name || 'Unknown Type'}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                    ${item.price.toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="text-indigo-600 hover:text-indigo-900 p-1"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteItem(item)}
+                        className="text-red-600 hover:text-red-900 p-1"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {currentItems.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <Search className="h-12 w-12 mx-auto" />
+            </div>
+            <p className="text-gray-500 text-lg">
+              {searchTerm || selectedCategory || selectedConsoleType || selectedConsole 
+                ? 'No items match your filters' 
+                : 'No items found'}
+            </p>
+            {(searchTerm || selectedCategory || selectedConsoleType || selectedConsole) && (
+              <button
+                onClick={clearFilters}
+                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {filteredItems.length > 0 && (
+        <div className="bg-white px-6 py-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+            {/* Items per page selector */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-700">Items per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(parseInt(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+            
+            {/* Pagination controls */}
+            <AdminPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredItems.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Forms and Modals */}
+      <div ref={formContainerRef}>
+        {showForm && (
+          <ItemForm
+            item={editingItem}
+            categories={categories}
+            consoleTypes={consoleTypes}
+            onSubmit={handleFormSubmit}
+            onCancel={() => {
+              setShowForm(false)
+              setEditingItem(null)
+            }}
+          />
+        )}
+      </div>
+
+      {deleteItem && (
+        <ConfirmModal
+          title="Delete Item"
+          message={`Are you sure you want to delete "${deleteItem.name}"? This action cannot be undone.`}
+          onConfirm={() => handleDelete(deleteItem)}
+          onCancel={() => setDeleteItem(null)}
+          loading={loading}
+        />
+      )}
+    </div>
+  )
+}
