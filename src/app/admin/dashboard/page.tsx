@@ -9,7 +9,8 @@ import {
   Clock,
   AlertCircle,
   CheckCircle,
-  ArrowUpRight
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react'
 import Link from 'next/link'
 
