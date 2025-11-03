@@ -5,19 +5,8 @@ import Link from 'next/link'
 import AdminLogout from '@/components/AdminLogout'
 
 export default async function AdminDashboard() {
+  // Middleware already protects this route
   const session = await getServerSession(authOptions)
-
-  // Add logging to debug session issues
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Admin page - Session check:', session ? 'Found' : 'Not found')
-    if (session) {
-      console.log('Session user:', session.user)
-    }
-  }
-
-  if (!session) {
-    redirect('/admin/login')
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

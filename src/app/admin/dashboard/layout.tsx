@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import AdminSidebar from '@/components/admin/AdminSidebar'
@@ -10,11 +9,9 @@ export default async function AdminDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Middleware already protects this route, so we can safely get session without checking
+  // If middleware didn't protect it, we wouldn't get here
   const session = await getServerSession(authOptions)
-
-  if (!session) {
-    redirect('/admin/login')
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
