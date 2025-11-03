@@ -130,7 +130,9 @@ async function getItems(search?: string, category?: string, consoleType?: string
       }
     }
   } catch (error) {
-    console.error('Error fetching items:', error)
+    if (typeof console !== 'undefined') {
+      console.error('Error fetching items:', error)
+    }
     return {
       items: [],
       pagination: {
@@ -154,7 +156,9 @@ async function getCategories() {
     })
     return categories
   } catch (error) {
-    console.error('Error fetching categories:', error)
+    if (typeof console !== 'undefined') {
+      console.error('Error fetching categories:', error)
+    }
     return []
   }
 }
@@ -175,7 +179,9 @@ async function getConsoleTypes() {
     })
     return consoleTypes
   } catch (error) {
-    console.error('Error fetching console types:', error)
+    if (typeof console !== 'undefined') {
+      console.error('Error fetching console types:', error)
+    }
     return []
   }
 }
@@ -264,7 +270,9 @@ export default async function ItemsPage({
     </>
   )
   } catch (error) {
-    console.error('Error in ItemsPage:', error)
+    if (typeof console !== 'undefined') {
+      console.error('Error in ItemsPage:', error)
+    }
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center">
