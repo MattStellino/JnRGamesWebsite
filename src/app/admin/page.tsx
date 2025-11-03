@@ -13,7 +13,7 @@ export default async function AdminDashboard() {
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Welcome, {session.user?.name || session.user?.email || 'Admin'}</p>
+          <p className="text-gray-600">Welcome, {session?.user?.name || session?.user?.email || 'Admin'}</p>
         </div>
         <AdminLogout />
       </div>
