@@ -71,8 +71,9 @@ function LoginForm() {
           }
           
           if (session) {
-            // Session is set, redirect with delay so user can see console
-            const redirectUrl = result.url || callbackUrl || '/admin'
+            // Session is set, redirect to dashboard
+            // Default to dashboard instead of just /admin
+            const redirectUrl = '/admin/dashboard'
             addDebugLog(`🔄 Will redirect to: ${redirectUrl} in 3 seconds...`)
             
             // Give user more time to read debug info
