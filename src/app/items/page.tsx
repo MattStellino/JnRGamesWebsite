@@ -137,8 +137,9 @@ async function getItems(search?: string, category?: string, consoleType?: string
   } catch (err: unknown) {
     if (typeof console !== 'undefined') {
       if (err instanceof Error) {
-        console.error('Error fetching items:', err.message)
-        if (err.stack) console.error('Error stack:', err.stack)
+        console.error('Error fetching items:', (err as Error).message)
+        const stack = (err as Error).stack
+        if (stack) console.error('Error stack:', stack)
       } else {
         console.error('Error fetching items:', String(err))
       }
@@ -167,7 +168,7 @@ async function getCategories() {
     return categories
   } catch (err: unknown) {
     if (typeof console !== 'undefined') {
-      const errorMessage = err instanceof Error ? err.message : String(err)
+      const errorMessage = err instanceof Error ? (err as Error).message : String(err)
       console.error('Error fetching categories:', errorMessage)
     }
     return []
@@ -191,7 +192,7 @@ async function getConsoleTypes() {
     return consoleTypes
   } catch (err: unknown) {
     if (typeof console !== 'undefined') {
-      const errorMessage = err instanceof Error ? err.message : String(err)
+      const errorMessage = err instanceof Error ? (err as Error).message : String(err)
       console.error('Error fetching console types:', errorMessage)
     }
     return []
@@ -283,10 +284,11 @@ export default async function ItemsPage({
   )
   } catch (err: unknown) {
     if (typeof console !== 'undefined') {
-      const errorMessage = err instanceof Error ? err.message : String(err)
+      const errorMessage = err instanceof Error ? (err as Error).message : String(err)
       console.error('Error in ItemsPage:', errorMessage)
-      if (err instanceof Error && err.stack) {
-        console.error('Error stack:', err.stack)
+      if (err instanceof Error) {
+        const stack = (err as Error).stack
+        if (stack) console.error('Error stack:', stack)
       }
       console.error('DATABASE_URL exists:', !!process.env.DATABASE_URL)
     }
