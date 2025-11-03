@@ -134,11 +134,11 @@ async function getItems(search?: string, category?: string, consoleType?: string
         hasPrevPage,
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (typeof console !== 'undefined') {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error('Error fetching items:', errorMessage)
-      if (error instanceof Error) {
+      if (error instanceof Error && error.stack) {
         console.error('Error stack:', error.stack)
       }
     }
@@ -164,7 +164,7 @@ async function getCategories() {
       },
     })
     return categories
-  } catch (error) {
+  } catch (error: unknown) {
     if (typeof console !== 'undefined') {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error('Error fetching categories:', errorMessage)
@@ -188,7 +188,7 @@ async function getConsoleTypes() {
       },
     })
     return consoleTypes
-  } catch (error) {
+  } catch (error: unknown) {
     if (typeof console !== 'undefined') {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error('Error fetching console types:', errorMessage)
@@ -280,11 +280,11 @@ export default async function ItemsPage({
       </div>
     </>
   )
-  } catch (error) {
+  } catch (error: unknown) {
     if (typeof console !== 'undefined') {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error('Error in ItemsPage:', errorMessage)
-      if (error instanceof Error) {
+      if (error instanceof Error && error.stack) {
         console.error('Error stack:', error.stack)
       }
       console.error('DATABASE_URL exists:', !!process.env.DATABASE_URL)
