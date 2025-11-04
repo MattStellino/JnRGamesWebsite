@@ -60,15 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward to Formspree
-    const formspreeEndpoint = process.env.FORMSPREE_ENDPOINT
-    
-    if (!formspreeEndpoint) {
-      console.error('FORMSPREE_ENDPOINT environment variable is not set')
-      return NextResponse.json(
-        { error: 'Form submission service is not configured. Please contact support.' },
-        { status: 500 }
-      )
-    }
+    const formspreeEndpoint = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/mqagvyde'
 
     try {
       const formspreeResponse = await fetch(formspreeEndpoint, {

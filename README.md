@@ -161,7 +161,7 @@ Make sure to set these in your Vercel dashboard:
 - `DATABASE_URL` - Your PostgreSQL connection string
 - `NEXTAUTH_URL` - Your production URL
 - `NEXTAUTH_SECRET` - A secure random string
-- `FORMSPREE_ENDPOINT` - Your Formspree form endpoint URL (e.g., `https://formspree.io/f/YOUR_FORM_ID`)
+- `FORMSPREE_ENDPOINT` - Your Formspree form endpoint URL (default: `https://formspree.io/f/mqagvyde`)
 - `ADMIN_USERNAME` - Your admin username
 - `ADMIN_PASSWORD` - Your admin password (will be hashed)
 

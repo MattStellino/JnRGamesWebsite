@@ -88,8 +88,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">Email</h3>
-                    <p className="text-gray-600">info@jrgames.com</p>
-                    <p className="text-gray-600">sales@jrgames.com</p>
+                    <a href="mailto:jnrretro@outlook.com" className="text-gray-600 hover:text-blue-600 transition-colors">jnrretro@outlook.com</a>
                   </div>
                 </div>
 
@@ -99,8 +98,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">Phone</h3>
-                    <p className="text-gray-600">(555) 123-4567</p>
-                    <p className="text-gray-600">(555) 987-6543</p>
+                    <p className="text-gray-600">(416) 677-2382</p>
                   </div>
                 </div>
 
@@ -109,10 +107,9 @@ export default function ContactPage() {
                     <MapPin className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">Address</h3>
+                    <h3 className="font-medium text-gray-900">Service Area</h3>
                     <p className="text-gray-600">
-                      123 Gaming Street<br />
-                      Game City, GC 12345
+                      Serving the GTA
                     </p>
                   </div>
                 </div>
@@ -124,8 +121,12 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-medium text-gray-900">Hours</h3>
                     <p className="text-gray-600">
-                      Monday - Friday: 9:00 AM - 6:00 PM<br />
-                      Saturday: 10:00 AM - 4:00 PM<br />
+                      Monday: 10 a.m.–7 p.m.<br />
+                      Tuesday: 10 a.m.–7 p.m.<br />
+                      Wednesday: 10 a.m.–7 p.m.<br />
+                      Thursday: 10 a.m.–7 p.m.<br />
+                      Friday: 10 a.m.–7 p.m.<br />
+                      Saturday: 11 a.m.–6 p.m.<br />
                       Sunday: Closed
                     </p>
                   </div>
@@ -186,7 +187,7 @@ export default function ContactPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                      placeholder="(555) 123-4567"
+                      placeholder="(416) 677-2382"
                     />
                   </div>
 

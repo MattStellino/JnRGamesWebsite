@@ -135,8 +135,8 @@ export default function TermsOfService() {
               <div className="bg-gray-50 rounded-lg p-4 mt-4">
                 <p className="text-gray-700">
                   <strong>J&R Games</strong><br />
-                  Email: info@jrgames.com<br />
-                  Phone: (555) 123-4567
+                  Email: <a href="mailto:jnrretro@outlook.com" className="text-blue-600 hover:underline">jnrretro@outlook.com</a><br />
+                  Phone: <a href="tel:14166772382" className="text-blue-600 hover:underline">(416) 677-2382</a>
                 </p>
               </div>
             </section>

@@ -16,22 +16,21 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
           logo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/jnr_2024_logo.png`,
           contactPoint: {
             '@type': 'ContactPoint',
-            telephone: '+1-555-123-4567',
+            telephone: '+1-416-677-2382',
             contactType: 'customer service',
-            email: 'info@jrgames.com',
+            email: 'jnrretro@outlook.com',
             availableLanguage: 'English'
           },
           address: {
             '@type': 'PostalAddress',
-            streetAddress: '123 Gaming Street',
-            addressLocality: 'Game City',
-            addressRegion: 'GC',
-            postalCode: '12345',
-            addressCountry: 'US'
+            addressLocality: 'Greater Toronto Area',
+            addressRegion: 'ON',
+            addressCountry: 'CA'
           },
           openingHours: [
-            'Mo-Fr 09:00-18:00',
-            'Sa 10:00-16:00'
+            'Mo-Fr 10:00-19:00',
+            'Sa 11:00-18:00',
+            'Su closed'
           ],
           sameAs: [
             // Add your social media URLs here

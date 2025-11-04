@@ -69,10 +69,10 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
-                <span className="block">📧 info@jrgames.com</span>
+                <a href="mailto:jnrretro@outlook.com" className="block hover:text-white transition-colors">📧 jnrretro@outlook.com</a>
               </li>
               <li>
-                <span className="block">📞 (555) 123-4567</span>
+                <a href="tel:14166772382" className="block hover:text-white transition-colors">📞 (416) 677-2382</a>
               </li>
             </ul>
           </div>
