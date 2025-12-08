@@ -21,10 +21,15 @@ function SearchPageContent() {
       if (categoryId) params.append('categoryId', categoryId)
 
       const response = await fetch(`/api/items?${params}`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch items: ${response.statusText}`)
+      }
       const data = await response.json()
-      setItems(data)
+      // API returns { items, pagination }, so extract items array
+      setItems(data.items || [])
     } catch (error) {
       console.error('Search failed:', error)
+      setItems([]) // Clear items on error
     } finally {
       setLoading(false)
     }
