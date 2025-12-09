@@ -68,6 +68,11 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
     name: '',
     description: '',
     price: '',
+    goodPrice: '',
+    acceptablePrice: '',
+    consoleOnlyPrice: '',
+    consoleWithController: '',
+    completeConsolePrice: '',
     imageUrl: '',
     categoryId: '',
     consoleId: '',
@@ -82,6 +87,11 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
         name: item.name,
         description: item.description || '',
         price: item.price.toString(),
+        goodPrice: item.goodPrice?.toString() || '',
+        acceptablePrice: item.acceptablePrice?.toString() || '',
+        consoleOnlyPrice: item.consoleOnlyPrice?.toString() || '',
+        consoleWithController: item.consoleWithController?.toString() || '',
+        completeConsolePrice: item.completeConsolePrice?.toString() || '',
         imageUrl: item.imageUrl || '',
         categoryId: item.categoryId.toString(),
         consoleId: item.consoleId.toString(),
@@ -147,8 +157,15 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          price: parseFloat(formData.price),
+          name: formData.name,
+          description: formData.description || null,
+          price: parseFloat(formData.price) || 0,
+          goodPrice: formData.goodPrice ? parseFloat(formData.goodPrice) : null,
+          acceptablePrice: formData.acceptablePrice ? parseFloat(formData.acceptablePrice) : null,
+          consoleOnlyPrice: formData.consoleOnlyPrice ? parseFloat(formData.consoleOnlyPrice) : null,
+          consoleWithController: formData.consoleWithController ? parseFloat(formData.consoleWithController) : null,
+          completeConsolePrice: formData.completeConsolePrice ? parseFloat(formData.completeConsolePrice) : null,
+          imageUrl: formData.imageUrl || null,
           categoryId: parseInt(formData.categoryId),
           consoleId: parseInt(formData.consoleId),
         }),
@@ -216,6 +233,166 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
               />
             </div>
           </div>
+
+          {/* Conditional Price Fields Based on Category */}
+          {formData.categoryId && (() => {
+            const selectedCategory = categories.find(c => c.id.toString() === formData.categoryId)
+            const categoryName = selectedCategory?.name || ''
+            
+            // Games - Show Complete in Box, Box and Game, Disc Only
+            if (categoryName === 'Games') {
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                      Complete in Box Price *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="price"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Game with box, manual, and inserts</p>
+                  </div>
+                  <div>
+                    <label htmlFor="goodPrice" className="block text-sm font-medium text-gray-700 mb-2">
+                      Box and Game Price
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="goodPrice"
+                      value={formData.goodPrice}
+                      onChange={(e) => setFormData({ ...formData, goodPrice: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      placeholder="Optional"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Game with box, no manual</p>
+                  </div>
+                  <div>
+                    <label htmlFor="acceptablePrice" className="block text-sm font-medium text-gray-700 mb-2">
+                      Disc Only Price
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="acceptablePrice"
+                      value={formData.acceptablePrice}
+                      onChange={(e) => setFormData({ ...formData, acceptablePrice: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      placeholder="Optional"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Just the game disc/cartridge</p>
+                  </div>
+                </div>
+              )
+            }
+            
+            // Consoles - Show Complete Console, Console with Controller, Console Only
+            if (categoryName === 'Consoles') {
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                  <div>
+                    <label htmlFor="completeConsolePrice" className="block text-sm font-medium text-gray-700 mb-2">
+                      Complete Console Price *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="completeConsolePrice"
+                      value={formData.completeConsolePrice || formData.price}
+                      onChange={(e) => setFormData({ ...formData, completeConsolePrice: e.target.value, price: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Console with all cables, controllers, box</p>
+                  </div>
+                  <div>
+                    <label htmlFor="consoleWithController" className="block text-sm font-medium text-gray-700 mb-2">
+                      Console with Controller Price
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="consoleWithController"
+                      value={formData.consoleWithController}
+                      onChange={(e) => setFormData({ ...formData, consoleWithController: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      placeholder="Optional"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Console with controller, no box</p>
+                  </div>
+                  <div>
+                    <label htmlFor="consoleOnlyPrice" className="block text-sm font-medium text-gray-700 mb-2">
+                      Console Only Price
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="consoleOnlyPrice"
+                      value={formData.consoleOnlyPrice}
+                      onChange={(e) => setFormData({ ...formData, consoleOnlyPrice: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      placeholder="Optional"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Just the console unit</p>
+                  </div>
+                </div>
+              )
+            }
+            
+            // Handhelds, Controllers, Accessories - Show Good Condition, Acceptable Condition
+            if (['Handhelds', 'Controllers', 'Accessories'].includes(categoryName)) {
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <div>
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                      Good Condition Price *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="price"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Excellent working condition</p>
+                  </div>
+                  <div>
+                    <label htmlFor="acceptablePrice" className="block text-sm font-medium text-gray-700 mb-2">
+                      Acceptable Condition Price
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      id="acceptablePrice"
+                      value={formData.acceptablePrice}
+                      onChange={(e) => setFormData({ ...formData, acceptablePrice: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      placeholder="Optional"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Working but with wear</p>
+                  </div>
+                </div>
+              )
+            }
+            
+            return null
+          })()}
 
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
