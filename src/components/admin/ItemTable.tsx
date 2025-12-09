@@ -85,6 +85,8 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState<ItemFormData | null>(null)
   const [deleteItem, setDeleteItem] = useState<Item | null>(null)
+  const [bulkDeleteItems, setBulkDeleteItems] = useState<Item[]>([])
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set())
   const [loading, setLoading] = useState(false)
   
   // Pagination state
@@ -278,6 +280,11 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
 
       if (response.ok) {
         setItems(items.filter(i => i.id !== item.id))
+        setSelectedItems(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(item.id)
+          return newSet
+        })
         toast.success('Item deleted successfully')
       } else {
         const error = await response.json()
@@ -288,6 +295,70 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
     } finally {
       setLoading(false)
       setDeleteItem(null)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (bulkDeleteItems.length === 0) return
+
+    setLoading(true)
+    try {
+      // Delete all selected items
+      const deletePromises = bulkDeleteItems.map(item =>
+        fetch(`/api/items/${item.id}`, { method: 'DELETE' })
+      )
+
+      const results = await Promise.allSettled(deletePromises)
+      const successful = results.filter(r => r.status === 'fulfilled' && r.value.ok).length
+      const failed = results.length - successful
+
+      // Remove deleted items from state
+      const deletedIds = new Set(bulkDeleteItems.map(item => item.id))
+      setItems(items.filter(i => !deletedIds.has(i.id)))
+      setSelectedItems(new Set())
+
+      if (successful > 0) {
+        toast.success(`Successfully deleted ${successful} item(s)${failed > 0 ? ` (${failed} failed)` : ''}`)
+      } else {
+        toast.error('Failed to delete items')
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting items')
+    } finally {
+      setLoading(false)
+      setBulkDeleteItems([])
+    }
+  }
+
+  const handleSelectItem = (itemId: number) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId)
+      } else {
+        newSet.add(itemId)
+      }
+      return newSet
+    })
+  }
+
+  const handleSelectAll = () => {
+    if (selectedItems.size === currentItems.length) {
+      // Deselect all
+      setSelectedItems(new Set())
+    } else {
+      // Select all on current page
+      setSelectedItems(new Set(currentItems.map(item => item.id)))
+    }
+  }
+
+  const handleSelectAllFiltered = () => {
+    if (selectedItems.size === filteredItems.length) {
+      // Deselect all
+      setSelectedItems(new Set())
+    } else {
+      // Select all filtered items
+      setSelectedItems(new Set(filteredItems.map(item => item.id)))
     }
   }
 
@@ -466,12 +537,49 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
         )}
       </div>
 
+      {/* Bulk Actions Bar */}
+      {selectedItems.size > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <span className="text-sm font-medium text-blue-900">
+              {selectedItems.size} item{selectedItems.size !== 1 ? 's' : ''} selected
+            </span>
+            <button
+              onClick={() => setSelectedItems(new Set())}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Clear selection
+            </button>
+          </div>
+          <button
+            onClick={() => {
+              const itemsToDelete = filteredItems.filter(item => selectedItems.has(item.id))
+              setBulkDeleteItems(itemsToDelete)
+            }}
+            disabled={loading}
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Selected ({selectedItems.size})
+          </button>
+        </div>
+      )}
+
       {/* Items Table */}
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden" id="items-table">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                  <input
+                    type="checkbox"
+                    checked={currentItems.length > 0 && selectedItems.size === currentItems.length}
+                    onChange={handleSelectAll}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    title="Select all on this page"
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Item
                 </th>
@@ -494,7 +602,15 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentItems.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
+                <tr key={item.id} className={`hover:bg-gray-50 ${selectedItems.has(item.id) ? 'bg-blue-50' : ''}`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(item.id)}
+                      onChange={() => handleSelectItem(item.id)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {item.imageUrl && (
