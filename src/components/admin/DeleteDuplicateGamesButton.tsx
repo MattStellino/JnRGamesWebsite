@@ -13,9 +13,15 @@ export default function DeleteDuplicateGamesButton() {
   const checkDuplicates = async () => {
     setChecking(true)
     try {
-      const response = await fetch('/api/admin/list-duplicate-games')
+      // First check what's under "Other" console type
+      const response = await fetch('/api/admin/delete-other-console-games', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
       const data = await response.json()
-      if (data.success) {
+      if (data.success && data.duplicates) {
         setDuplicates(data.duplicates || [])
         if (data.duplicates.length === 0) {
           toast.success('No duplicates found!')
@@ -34,7 +40,7 @@ export default function DeleteDuplicateGamesButton() {
   }, [])
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete duplicate games with "Complete in Box"? This will remove games that only show "Complete in Box" when there is also a "Game Only" version. This action cannot be undone!')) {
+    if (!confirm('Are you sure you want to delete games under "Other" console type that have duplicates? This will remove incorrectly categorized games when a proper version exists. This action cannot be undone!')) {
       return
     }
 
@@ -42,7 +48,7 @@ export default function DeleteDuplicateGamesButton() {
     setResult(null)
 
     try {
-      const response = await fetch('/api/admin/delete-duplicate-games', {
+      const response = await fetch('/api/admin/delete-other-console-games', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +84,7 @@ export default function DeleteDuplicateGamesButton() {
       <div className="p-6">
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-700">Remove "Complete in Box" Duplicates</h3>
+            <h3 className="text-sm font-medium text-gray-700">Delete Duplicate Games</h3>
             <button
               onClick={checkDuplicates}
               disabled={checking}
@@ -89,12 +95,12 @@ export default function DeleteDuplicateGamesButton() {
             </button>
           </div>
           <p className="text-sm text-gray-600 mb-2">
-            This will find and delete games that only show "Complete in Box" pricing when there is also a "Game Only" version of the same game. 
-            Only games with duplicate entries (same name and console) will be affected.
+            This will find and delete games under "Other" console type that have duplicates under the correct console types. 
+            Games that are incorrectly categorized under "Other" will be removed when a proper version exists.
           </p>
           {duplicates.length > 0 && (
             <p className="text-sm text-orange-600 font-medium mb-2">
-              Found {duplicates.length} duplicate set(s) with {duplicates.reduce((sum, d) => sum + d.count, 0)} total duplicate games
+              Found {duplicates.length} game(s) under "Other" console type that have duplicates
             </p>
           )}
           <p className="text-xs text-red-600 font-medium">
@@ -104,10 +110,10 @@ export default function DeleteDuplicateGamesButton() {
 
         {duplicates.length > 0 && (
           <div className="mb-4 p-3 bg-gray-50 rounded border max-h-48 overflow-y-auto">
-            <p className="text-xs font-medium text-gray-700 mb-2">Duplicate Games Found:</p>
+            <p className="text-xs font-medium text-gray-700 mb-2">Games to Delete (under "Other"):</p>
             {duplicates.map((dup, idx) => (
               <div key={idx} className="text-xs text-gray-600 mb-1">
-                "{dup.name}" ({dup.console}) - {dup.count} entries
+                "{dup.name}" (Other - {dup.otherConsole}) → Keep: {dup.correctVersions.map(v => `${v.consoleType} - ${v.console}`).join(', ')}
               </div>
             ))}
           </div>
