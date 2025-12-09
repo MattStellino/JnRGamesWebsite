@@ -24,6 +24,10 @@ function SearchPageContent() {
       if (!response.ok) {
         throw new Error(`Failed to fetch items: ${response.statusText}`)
       }
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not JSON')
+      }
       const data = await response.json()
       // API returns { items, pagination }, so extract items array
       setItems(data.items || [])

@@ -21,9 +21,17 @@ export default function CategoryFilter({ categories = [], onCategoryChange }: Ca
   useEffect(() => {
     if (categories.length === 0) {
       // Fetch categories if not provided
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
-      fetch(`${baseUrl}/api/categories`)
-        .then(res => res.json())
+      fetch('/api/categories')
+        .then(async res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+          }
+          const contentType = res.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON')
+          }
+          return res.json()
+        })
         .then(data => {
           // Ensure data is an array
           if (Array.isArray(data)) {

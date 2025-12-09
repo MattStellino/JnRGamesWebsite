@@ -20,9 +20,17 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
   useEffect(() => {
     if (consoleTypes.length === 0) {
       // Fetch console types if not provided
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-      fetch(`${baseUrl}/api/console-types`)
-        .then(res => res.json())
+      fetch('/api/console-types')
+        .then(async res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+          }
+          const contentType = res.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON')
+          }
+          return res.json()
+        })
         .then(data => {
           // Ensure data is an array
           if (Array.isArray(data)) {
@@ -47,16 +55,27 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
     if (consoleTypeParam) {
       setSelectedConsoleType(consoleTypeParam)
       // Fetch consoles for this type
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-      fetch(`${baseUrl}/api/console-types/${consoleTypeParam}/consoles`)
-        .then(res => res.json())
+      fetch(`/api/console-types/${consoleTypeParam}/consoles`)
+        .then(async res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+          }
+          const contentType = res.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON')
+          }
+          return res.json()
+        })
         .then(data => {
           setConsoles(data)
           if (consoleParam && consoleParam !== 'all') {
             setSelectedConsole(consoleParam)
           }
         })
-        .catch(console.error)
+        .catch(error => {
+          console.error('Error fetching consoles:', error)
+          setConsoles([])
+        })
     }
   }, [searchParams, localConsoleTypes])
 
@@ -66,11 +85,22 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
     
     if (consoleTypeId) {
       // Fetch consoles for selected type
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-      fetch(`${baseUrl}/api/console-types/${consoleTypeId}/consoles`)
-        .then(res => res.json())
+      fetch(`/api/console-types/${consoleTypeId}/consoles`)
+        .then(async res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+          }
+          const contentType = res.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON')
+          }
+          return res.json()
+        })
         .then(data => setConsoles(data))
-        .catch(console.error)
+        .catch(error => {
+          console.error('Error fetching consoles:', error)
+          setConsoles([])
+        })
     } else {
       setConsoles([])
     }
