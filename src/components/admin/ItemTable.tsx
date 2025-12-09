@@ -757,6 +757,16 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
           loading={loading}
         />
       )}
+
+      {bulkDeleteItems.length > 0 && (
+        <ConfirmModal
+          title="Delete Multiple Items"
+          message={`Are you sure you want to delete ${bulkDeleteItems.length} item${bulkDeleteItems.length !== 1 ? 's' : ''}? This action cannot be undone.`}
+          onConfirm={handleBulkDelete}
+          onCancel={() => setBulkDeleteItems([])}
+          loading={loading}
+        />
+      )}
     </div>
   )
 }
