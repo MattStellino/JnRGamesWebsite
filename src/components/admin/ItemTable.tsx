@@ -64,6 +64,15 @@ interface ItemTableProps {
   consoleTypes: ConsoleType[]
 }
 
+// Helper function to format dates consistently (avoiding hydration errors)
+function formatDate(dateString: string | Date): string {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${month}/${day}/${year}`
+}
+
 export default function ItemTable({ initialItems, categories, consoleTypes }: ItemTableProps) {
   const [items, setItems] = useState(initialItems)
   const [filteredItems, setFilteredItems] = useState(initialItems)
@@ -514,7 +523,7 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
                     ${item.price.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(item.createdAt).toLocaleDateString()}
+                    {formatDate(item.createdAt)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
