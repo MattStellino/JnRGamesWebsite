@@ -55,59 +55,83 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
     if (consoleTypeParam) {
       setSelectedConsoleType(consoleTypeParam)
       // Fetch consoles for this type
+      console.log(`Initial load: Fetching consoles for console type: ${consoleTypeParam}`)
       fetch(`/api/console-types/${consoleTypeParam}/consoles`)
         .then(async res => {
+          console.log(`Initial load response status: ${res.status}`)
           if (!res.ok) {
+            const errorText = await res.text()
+            console.error(`HTTP error! status: ${res.status}, body: ${errorText}`)
             throw new Error(`HTTP error! status: ${res.status}`)
           }
           const contentType = res.headers.get('content-type')
           if (!contentType || !contentType.includes('application/json')) {
+            const text = await res.text()
+            console.error('Response is not JSON:', text)
             throw new Error('Response is not JSON')
           }
           return res.json()
         })
         .then(data => {
-          setConsoles(data)
-          if (consoleParam && consoleParam !== 'all') {
-            setSelectedConsole(consoleParam)
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching consoles:', error)
-          setConsoles([])
-        })
-    }
-  }, [searchParams, localConsoleTypes])
-
-  const handleConsoleTypeChange = (consoleTypeId: string) => {
-    setSelectedConsoleType(consoleTypeId)
-    setSelectedConsole('') // Reset console selection
-    
-    if (consoleTypeId) {
-      // Fetch consoles for selected type
-      fetch(`/api/console-types/${consoleTypeId}/consoles`)
-        .then(async res => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`)
-          }
-          const contentType = res.headers.get('content-type')
-          if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Response is not JSON')
-          }
-          return res.json()
-        })
-        .then(data => {
-          // Ensure data is an array
+          console.log('Initial load received data:', data)
           if (Array.isArray(data)) {
             setConsoles(data)
-            console.log(`Loaded ${data.length} consoles for console type ${consoleTypeId}`)
+            console.log(`✅ Initial load: Loaded ${data.length} consoles`)
+            if (consoleParam && consoleParam !== 'all') {
+              setSelectedConsole(consoleParam)
+            }
           } else {
-            console.error('Consoles API returned non-array data:', data)
+            console.error('❌ Initial load: Non-array data:', data)
             setConsoles([])
           }
         })
         .catch(error => {
-          console.error('Error fetching consoles:', error)
+          console.error('❌ Initial load error fetching consoles:', error)
+          setConsoles([])
+        })
+    } else {
+      setSelectedConsoleType('')
+      setConsoles([])
+    }
+  }, [searchParams])
+
+  const handleConsoleTypeChange = (consoleTypeId: string) => {
+    setSelectedConsoleType(consoleTypeId)
+    setSelectedConsole('') // Reset console selection
+    setConsoles([]) // Clear consoles while loading
+    
+    if (consoleTypeId) {
+      // Fetch consoles for selected type
+      console.log(`Fetching consoles for console type: ${consoleTypeId}`)
+      fetch(`/api/console-types/${consoleTypeId}/consoles`)
+        .then(async res => {
+          console.log(`Response status: ${res.status}`)
+          if (!res.ok) {
+            const errorText = await res.text()
+            console.error(`HTTP error! status: ${res.status}, body: ${errorText}`)
+            throw new Error(`HTTP error! status: ${res.status}`)
+          }
+          const contentType = res.headers.get('content-type')
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await res.text()
+            console.error('Response is not JSON:', text)
+            throw new Error('Response is not JSON')
+          }
+          return res.json()
+        })
+        .then(data => {
+          console.log('Received data:', data)
+          // Ensure data is an array
+          if (Array.isArray(data)) {
+            setConsoles(data)
+            console.log(`✅ Loaded ${data.length} consoles for console type ${consoleTypeId}`)
+          } else {
+            console.error('❌ Consoles API returned non-array data:', data)
+            setConsoles([])
+          }
+        })
+        .catch(error => {
+          console.error('❌ Error fetching consoles:', error)
           setConsoles([])
         })
     } else {
@@ -189,23 +213,23 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
             id="console"
             value={selectedConsole}
             onChange={(e) => handleConsoleChange(e.target.value)}
-            disabled={!selectedConsoleType || consoles.length === 0}
+            disabled={!selectedConsoleType}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 bg-white transition-colors"
           >
-            <option value="">All Consoles</option>
-            {consoles.length > 0 ? (
-              consoles
-                .filter((console) => console.name !== 'Wii') // Filter out "Wii" console
-                .map((console) => (
-                  <option key={console.id} value={console.id.toString()}>
-                    {console.name}
-                  </option>
-                ))
-            ) : selectedConsoleType ? (
-              <option value="" disabled>Loading consoles...</option>
-            ) : (
-              <option value="" disabled>Select a console type first</option>
-            )}
+            <option value="">
+              {!selectedConsoleType 
+                ? 'Select a console type first' 
+                : consoles.length === 0 
+                  ? 'Loading consoles...' 
+                  : 'All Consoles'}
+            </option>
+            {consoles
+              .filter((console) => console.name !== 'Wii') // Filter out "Wii" console
+              .map((console) => (
+                <option key={console.id} value={console.id.toString()}>
+                  {console.name}
+                </option>
+              ))}
           </select>
         </div>
       </div>
