@@ -1,12 +1,37 @@
 'use client'
 
-import { useState } from 'react'
-import { Trash2, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Trash2, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function DeleteDuplicateGamesButton() {
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(false)
   const [result, setResult] = useState<any>(null)
+  const [duplicates, setDuplicates] = useState<any[]>([])
+
+  const checkDuplicates = async () => {
+    setChecking(true)
+    try {
+      const response = await fetch('/api/admin/list-duplicate-games')
+      const data = await response.json()
+      if (data.success) {
+        setDuplicates(data.duplicates || [])
+        if (data.duplicates.length === 0) {
+          toast.success('No duplicates found!')
+        }
+      }
+    } catch (error) {
+      console.error('Check error:', error)
+      toast.error('Failed to check for duplicates')
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  useEffect(() => {
+    checkDuplicates()
+  }, [])
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete duplicate games with "Complete in Box"? This will remove games that only show "Complete in Box" when there is also a "Game Only" version. This action cannot be undone!')) {
@@ -52,19 +77,45 @@ export default function DeleteDuplicateGamesButton() {
       </div>
       <div className="p-6">
         <div className="mb-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Remove "Complete in Box" Duplicates</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-700">Remove "Complete in Box" Duplicates</h3>
+            <button
+              onClick={checkDuplicates}
+              disabled={checking}
+              className="text-xs text-blue-600 hover:text-blue-700 disabled:text-gray-400 flex items-center"
+            >
+              <RefreshCw className={`h-3 w-3 mr-1 ${checking ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 mb-2">
             This will find and delete games that only show "Complete in Box" pricing when there is also a "Game Only" version of the same game. 
             Only games with duplicate entries (same name and console) will be affected.
           </p>
+          {duplicates.length > 0 && (
+            <p className="text-sm text-orange-600 font-medium mb-2">
+              Found {duplicates.length} duplicate set(s) with {duplicates.reduce((sum, d) => sum + d.count, 0)} total duplicate games
+            </p>
+          )}
           <p className="text-xs text-red-600 font-medium">
             ⚠️ This action cannot be undone!
           </p>
         </div>
 
+        {duplicates.length > 0 && (
+          <div className="mb-4 p-3 bg-gray-50 rounded border max-h-48 overflow-y-auto">
+            <p className="text-xs font-medium text-gray-700 mb-2">Duplicate Games Found:</p>
+            {duplicates.map((dup, idx) => (
+              <div key={idx} className="text-xs text-gray-600 mb-1">
+                "{dup.name}" ({dup.console}) - {dup.count} entries
+              </div>
+            ))}
+          </div>
+        )}
+
         <button
           onClick={handleDelete}
-          disabled={loading}
+          disabled={loading || duplicates.length === 0}
           className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
