@@ -149,9 +149,10 @@ export async function GET(request: NextRequest) {
           }
         }
       },
-      orderBy: {
-        name: 'asc',
-      },
+      orderBy: [
+        { createdAt: 'desc' }, // Show newest items first
+        { name: 'asc' }, // Then sort alphabetically for items created at the same time
+      ],
       skip,
       take: limit,
     })

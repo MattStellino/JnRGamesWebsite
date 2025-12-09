@@ -111,9 +111,10 @@ async function getItems(search?: string, category?: string, consoleType?: string
           }
         }
       },
-      orderBy: {
-        name: 'asc',
-      },
+      orderBy: [
+        { createdAt: 'desc' }, // Show newest items first
+        { name: 'asc' }, // Then sort alphabetically for items created at the same time
+      ],
       skip,
       take: limit,
     })
