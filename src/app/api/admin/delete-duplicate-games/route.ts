@@ -40,11 +40,13 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Group games by name (case-insensitive) and console
+    // Group games by name (case-insensitive, normalized) and console
     const gameGroups = new Map()
     
     for (const game of allGames) {
-      const key = `${game.name.toLowerCase().trim()}_${game.consoleId}`
+      // Normalize name: lowercase, trim, remove extra spaces
+      const normalizedName = game.name.toLowerCase().trim().replace(/\s+/g, ' ')
+      const key = `${normalizedName}_${game.consoleId}`
       if (!gameGroups.has(key)) {
         gameGroups.set(key, [])
       }
@@ -66,16 +68,12 @@ export async function POST(request: NextRequest) {
           
           // For modern systems: Complete in Box only if price exists but no goodPrice/acceptablePrice
           // For classic: they always show "Game Only"
-          const showsOnlyCompleteInBox = !isClassicNintendo && 
-            game.price > 0 && 
-            !game.goodPrice && 
-            !game.acceptablePrice &&
-            (!game.description || !game.description.toLowerCase().includes('game only'))
+          const hasCompleteInBoxPrice = !isClassicNintendo && game.price > 0
+          const hasGameOnlyPrice = game.goodPrice > 0 || game.acceptablePrice > 0
+          const hasGameOnlyInDesc = game.description && game.description.toLowerCase().includes('game only')
           
-          const showsGameOnly = isClassicNintendo ||
-            (game.goodPrice && game.goodPrice > 0) ||
-            (game.acceptablePrice && game.acceptablePrice > 0) ||
-            (game.description && game.description.toLowerCase().includes('game only'))
+          const showsOnlyCompleteInBox = hasCompleteInBoxPrice && !hasGameOnlyPrice && !hasGameOnlyInDesc
+          const showsGameOnly = isClassicNintendo || hasGameOnlyPrice || hasGameOnlyInDesc
           
           if (showsOnlyCompleteInBox && !showsGameOnly) {
             completeInBoxOnly.push(game)
