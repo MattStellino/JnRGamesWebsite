@@ -184,11 +184,13 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 bg-white transition-colors"
           >
             <option value="">All Consoles</option>
-            {consoles.map((console) => (
-              <option key={console.id} value={console.id.toString()}>
-                {console.name}
-              </option>
-            ))}
+            {consoles
+              .filter((console) => console.name !== 'Wii') // Filter out "Wii" console
+              .map((console) => (
+                <option key={console.id} value={console.id.toString()}>
+                  {console.name}
+                </option>
+              ))}
           </select>
         </div>
       </div>

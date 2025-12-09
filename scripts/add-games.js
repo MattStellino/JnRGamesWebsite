@@ -4,7 +4,18 @@ const prisma = new PrismaClient()
 
 async function addGames() {
   try {
+    const dbUrl = process.env.DATABASE_URL || ''
+    const isProduction = !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1')
+    
     console.log('🎮 Adding games to database...\n')
+    console.log(`📍 Database: ${isProduction ? 'PRODUCTION' : 'LOCAL'}\n`)
+    
+    if (!isProduction) {
+      console.log('⚠️  WARNING: This appears to be a LOCAL database!')
+      console.log('   If your website uses a PRODUCTION database, you need to:')
+      console.log('   1. Set DATABASE_URL to your production database')
+      console.log('   2. Run this script again\n')
+    }
     
     // Find Games category
     const gamesCategory = await prisma.category.findUnique({

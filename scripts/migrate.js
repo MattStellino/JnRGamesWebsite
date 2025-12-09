@@ -28,7 +28,7 @@ async function migrate() {
     }
 
     // Create default categories if they don't exist
-    const defaultCategories = ['Games', 'Consoles', 'Accessories', 'Handhelds']
+    const defaultCategories = ['Games', 'Consoles', 'Accessories', 'Controllers']
     
     for (const categoryName of defaultCategories) {
       const existingCategory = await prisma.category.findUnique({

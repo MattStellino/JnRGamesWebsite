@@ -32,8 +32,6 @@ async function getItems(search?: string, category?: string, consoleType?: string
         where.category = { name: 'Consoles' }
       } else if (category === 'accessories') {
         where.category = { name: 'Accessories' }
-      } else if (category === 'handhelds') {
-        where.category = { name: 'Handhelds' }
       } else if (category === 'controllers') {
         where.category = { name: 'Controllers' }
       } else if (category === 'games') {
@@ -45,8 +43,14 @@ async function getItems(search?: string, category?: string, consoleType?: string
       }
     }
 
-    // Handle console type filtering
-    if (consoleType) {
+    // Handle console type and specific console filtering
+    // If a specific console is selected, use consoleId (more specific)
+    // Otherwise, if consoleType is selected, filter by consoleType
+    if (console && console !== 'all') {
+      // Specific console selected - use consoleId
+      where.consoleId = parseInt(console)
+    } else if (consoleType) {
+      // Only consoleType selected - filter by consoleType
       const consoleTypeId = parseInt(consoleType)
       if (!isNaN(consoleTypeId)) {
         where.console = {
@@ -59,17 +63,9 @@ async function getItems(search?: string, category?: string, consoleType?: string
           }
         }
       }
-    }
-
-    // Handle specific console filtering
-    if (console) {
-      if (console === 'all') {
-        if (!consoleType) {
-          where.console = { isNot: null }
-        }
-      } else {
-        where.consoleId = parseInt(console)
-      }
+    } else if (console === 'all') {
+      // Show all consoles (only if no consoleType filter)
+      where.console = { isNot: null }
     }
 
     // Handle search

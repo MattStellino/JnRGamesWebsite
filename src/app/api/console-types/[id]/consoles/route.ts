@@ -18,7 +18,10 @@ export async function GET(
 
     const consoles = await prisma.console.findMany({
       where: {
-        consoleTypeId: consoleTypeId
+        consoleTypeId: consoleTypeId,
+        name: {
+          not: 'Wii' // Exclude "Wii" console (keep "Nintendo Wii")
+        }
       },
       orderBy: {
         name: 'asc'

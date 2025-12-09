@@ -268,8 +268,8 @@ export default async function ItemDetailsPage({
                         </>
                       )}
                     </div>
-                  ) : ['Handhelds', 'Controllers', 'Accessories'].includes(item.category.name) ? (
-                    // Handheld/Controller/Accessory pricing tiers (Good Condition, Acceptable Condition)
+                  ) : ['Controllers', 'Accessories'].includes(item.category.name) ? (
+                    // Controller/Accessory pricing tiers (Good Condition, Acceptable Condition)
                     <div className="space-y-4">
                       <div className="bg-white rounded-lg p-4 border border-green-200">
                         <div className="flex justify-between items-center">

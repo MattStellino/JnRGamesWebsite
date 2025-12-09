@@ -51,11 +51,6 @@ export async function GET(request: NextRequest) {
         where.category = {
           name: 'Accessories'
         }
-      } else if (category === 'handhelds') {
-        // Filter for handheld items
-        where.category = {
-          name: 'Handhelds'
-        }
       } else if (category === 'controllers') {
         // Filter for controller items
         where.category = {
@@ -74,38 +69,31 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Handle console type filtering
-    if (consoleType) {
-      // Check if consoleType is a number (ID) or string (name)
+    // Handle console type and specific console filtering
+    // If a specific console is selected, use consoleId (more specific)
+    // Otherwise, if consoleType is selected, filter by consoleType
+    if (console && console !== 'all') {
+      // Specific console selected - use consoleId
+      where.consoleId = parseInt(console)
+    } else if (consoleType) {
+      // Only consoleType selected - filter by consoleType
       const consoleTypeId = parseInt(consoleType)
       if (!isNaN(consoleTypeId)) {
-        // It's an ID
         where.console = {
           consoleType: {
             id: consoleTypeId
           }
         }
       } else {
-        // It's a name
         where.console = {
           consoleType: {
             name: { contains: consoleType, mode: 'insensitive' }
           }
         }
       }
-    }
-
-    // Handle specific console filtering
-    if (console) {
-      if (console === 'all') {
-        // Show all console items (only if no console type filter)
-        if (!consoleType) {
-          where.console = { isNot: null }
-        }
-      } else {
-        // Filter by specific console ID
-        where.consoleId = parseInt(console)
-      }
+    } else if (console === 'all') {
+      // Show all consoles (only if no consoleType filter)
+      where.console = { isNot: null }
     }
 
     if (sanitizedSearch) {

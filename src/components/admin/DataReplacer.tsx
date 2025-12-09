@@ -171,7 +171,7 @@ export default function DataReplacer() {
           <p>• Reads data from your 3 CSV files in the project root</p>
           <p>• Creates appropriate console types (PlayStation, Xbox, Nintendo, Handheld, etc.)</p>
           <p>• Creates consoles based on item names</p>
-          <p>• Creates categories (Consoles, Controllers, Handhelds, Accessories)</p>
+          <p>• Creates categories (Consoles, Controllers, Accessories)</p>
           <p>• Creates items with different price points and conditions</p>
           <p>• Handles "Contact" and "N/A" prices appropriately</p>
         </div>

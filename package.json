@@ -10,7 +10,6 @@
     "type-check": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:migrate": "node scripts/migrate.js",
-    "db:migrate-handhelds": "node scripts/migrate-handhelds-to-nintendo.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {

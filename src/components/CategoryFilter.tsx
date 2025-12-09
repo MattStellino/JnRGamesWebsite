@@ -63,8 +63,6 @@ export default function CategoryFilter({ categories = [], onCategoryChange }: Ca
             params.set('category', 'consoles')
           } else if (category.name === 'Accessories') {
             params.set('category', 'accessories')
-          } else if (category.name === 'Handhelds') {
-            params.set('category', 'handhelds')
           } else if (category.name === 'Controllers') {
             params.set('category', 'controllers')
           } else if (category.name === 'Games') {
@@ -90,8 +88,6 @@ export default function CategoryFilter({ categories = [], onCategoryChange }: Ca
     ? localCategories.find(c => c.name === 'Consoles')?.id.toString() || 'all'
     : urlCategory === 'accessories'
     ? localCategories.find(c => c.name === 'Accessories')?.id.toString() || 'all'
-    : urlCategory === 'handhelds'
-    ? localCategories.find(c => c.name === 'Handhelds')?.id.toString() || 'all'
     : urlCategory === 'controllers'
     ? localCategories.find(c => c.name === 'Controllers')?.id.toString() || 'all'
     : urlCategory === 'games'

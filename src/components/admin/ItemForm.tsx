@@ -333,8 +333,8 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
               )
             }
             
-            // Handhelds, Controllers, Accessories - Show Good Condition, Acceptable Condition
-            if (['Handhelds', 'Controllers', 'Accessories'].includes(categoryName)) {
+            // Controllers, Accessories - Show Good Condition, Acceptable Condition
+            if (['Controllers', 'Accessories'].includes(categoryName)) {
               return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
                   <div>

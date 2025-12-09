@@ -116,9 +116,13 @@ export class CSVReplacer {
   private getConsoleTypeFromName(name: string, type: 'console' | 'controller' | 'handheld'): string {
     const lowerName = name.toLowerCase()
     
-    // Handhelds don't have console types - they use the handheld category only
+    // Handhelds are now treated as consoles
     if (type === 'handheld') {
-      return 'Other' // Use Other as console type for handhelds
+      // Handhelds are now in Consoles category, determine console type
+      if (lowerName.includes('nintendo') || lowerName.includes('gameboy') || lowerName.includes('ds') || lowerName.includes('3ds') || lowerName.includes('2ds')) {
+        return 'Nintendo'
+      }
+      return 'Other'
     }
     
     // For non-handheld items, check console types
@@ -182,7 +186,7 @@ export class CSVReplacer {
       if (lowerName.includes('joy-con')) return 'Controllers'
       return 'Accessories'
     } else if (type === 'handheld') {
-      return 'Handhelds'
+      return 'Consoles' // Handhelds are now in Consoles category
     }
     
     return 'Other'
