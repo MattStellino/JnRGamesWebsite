@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     const updatedConsoles: string[] = []
     const skippedConsoles: string[] = []
 
-    // Update each console to be under Nintendo
+    // Update each console to be under Nintendo - FORCE IT
     for (const [consoleId, itemConsole] of uniqueConsoles) {
       const currentConsoleType = itemConsole.consoleType
 
@@ -86,14 +86,18 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      // Update the console to be under Nintendo
-      await prisma.console.update({
-        where: { id: consoleId },
-        data: { consoleTypeId: nintendoConsoleType.id }
-      })
+      // FORCE update the console to be under Nintendo
+      try {
+        await prisma.console.update({
+          where: { id: consoleId },
+          data: { consoleTypeId: nintendoConsoleType.id }
+        })
 
-      updatedConsoles.push(itemConsole.name)
-      updated++
+        updatedConsoles.push(`${itemConsole.name} (was: ${currentConsoleType.name})`)
+        updated++
+      } catch (error) {
+        console.error(`Failed to update console ${itemConsole.name}:`, error)
+      }
     }
 
     // Verify the migration
