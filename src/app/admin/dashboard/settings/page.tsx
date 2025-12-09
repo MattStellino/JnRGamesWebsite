@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { Shield, Database, Users, Settings as SettingsIcon } from 'lucide-react'
+import MigrateHandheldsButton from '@/components/admin/MigrateHandheldsButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,6 +93,11 @@ export default async function AdminSettingsPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Database Migration */}
+      <div className="mt-6">
+        <MigrateHandheldsButton />
       </div>
 
       {/* Security Notice */}
