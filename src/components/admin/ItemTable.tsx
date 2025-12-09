@@ -158,7 +158,7 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
     })
 
     setFilteredItems(filtered)
-    setCurrentPage(1) // Reset to first page when filters change
+    // Don't reset page here - only reset when filters actually change
   }
 
   // Initialize filtered items on mount
@@ -175,19 +175,23 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
+    setCurrentPage(1) // Reset to first page when search changes
   }
 
   const handleCategoryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCategory(e.target.value)
+    setCurrentPage(1) // Reset to first page when filter changes
   }
 
   const handleConsoleTypeFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedConsoleType(e.target.value)
     setSelectedConsole('') // Reset console when console type changes
+    setCurrentPage(1) // Reset to first page when filter changes
   }
 
   const handleConsoleFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedConsole(e.target.value)
+    setCurrentPage(1) // Reset to first page when filter changes
   }
 
   const handleSort = (field: string) => {
@@ -197,6 +201,7 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
       setSortBy(field)
       setSortOrder('asc')
     }
+    // Don't reset page when sorting - user might want to stay on current page
   }
 
   const clearFilters = () => {
@@ -214,6 +219,13 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentItems = filteredItems.slice(startIndex, endIndex)
+
+  // Adjust page if current page is out of bounds (e.g., after deletion)
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [totalPages, currentPage])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
