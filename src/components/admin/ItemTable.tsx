@@ -537,16 +537,16 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
         )}
       </div>
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions Bar - Sticky at top when items selected */}
       {selectedItems.size > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-blue-600 border border-blue-700 rounded-lg p-4 mb-4 shadow-lg flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-blue-900">
+            <span className="text-sm font-semibold text-white">
               {selectedItems.size} item{selectedItems.size !== 1 ? 's' : ''} selected
             </span>
             <button
               onClick={() => setSelectedItems(new Set())}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-blue-100 hover:text-white underline"
             >
               Clear selection
             </button>
@@ -557,9 +557,9 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
               setBulkDeleteItems(itemsToDelete)
             }}
             disabled={loading}
-            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold shadow-md"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-5 w-5 mr-2" />
             Delete Selected ({selectedItems.size})
           </button>
         </div>
@@ -574,9 +574,9 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
                   <input
                     type="checkbox"
-                    checked={currentItems.length > 0 && selectedItems.size === currentItems.length}
+                    checked={currentItems.length > 0 && selectedItems.size === currentItems.length && currentItems.every(item => selectedItems.has(item.id))}
                     onChange={handleSelectAll}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     title="Select all on this page"
                   />
                 </th>
@@ -608,7 +608,7 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
                       type="checkbox"
                       checked={selectedItems.has(item.id)}
                       onChange={() => handleSelectItem(item.id)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
