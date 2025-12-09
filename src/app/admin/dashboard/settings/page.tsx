@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { Shield, Database, Users, Settings as SettingsIcon } from 'lucide-react'
 import MigrateHandheldsButton from '@/components/admin/MigrateHandheldsButton'
+import DeleteDuplicateGamesButton from '@/components/admin/DeleteDuplicateGamesButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -96,8 +97,9 @@ export default async function AdminSettingsPage() {
       </div>
 
       {/* Database Migration */}
-      <div className="mt-6">
+      <div className="mt-6 space-y-6">
         <MigrateHandheldsButton />
+        <DeleteDuplicateGamesButton />
       </div>
 
       {/* Security Notice */}
