@@ -3,7 +3,6 @@ import { Shield, Database, Users, Settings as SettingsIcon } from 'lucide-react'
 import MigrateHandheldsButton from '@/components/admin/MigrateHandheldsButton'
 import DeleteDuplicateGamesButton from '@/components/admin/DeleteDuplicateGamesButton'
 import DeleteWiiConsoleButton from '@/components/admin/DeleteWiiConsoleButton'
-import AddGamesButton from '@/components/admin/AddGamesButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -100,7 +99,6 @@ export default async function AdminSettingsPage() {
 
       {/* Database Migration */}
       <div className="mt-6 space-y-6">
-        <AddGamesButton />
         <MigrateHandheldsButton />
         <DeleteDuplicateGamesButton />
         <DeleteWiiConsoleButton />
