@@ -1,25 +1,40 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { ConsoleType, Console } from '@/types'
 
 interface ConsoleFilterProps {
   consoleTypes?: ConsoleType[]
   onConsoleChange?: (consoleId: string) => void
+  initialConsoleType?: string
+  initialConsole?: string
 }
 
-export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: ConsoleFilterProps) {
+export default function ConsoleFilter({ 
+  consoleTypes = [], 
+  onConsoleChange,
+  initialConsoleType = '',
+  initialConsole = ''
+}: ConsoleFilterProps) {
   const [localConsoleTypes, setLocalConsoleTypes] = useState<ConsoleType[]>(consoleTypes)
-  const [selectedConsoleType, setSelectedConsoleType] = useState<string>('')
-  const [selectedConsole, setSelectedConsole] = useState<string>('')
+  const [selectedConsoleType, setSelectedConsoleType] = useState<string>(initialConsoleType)
+  const [selectedConsole, setSelectedConsole] = useState<string>(initialConsole)
   const [consoles, setConsoles] = useState<Console[]>([])
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const pathname = usePathname()
 
-  // Extract stable values from searchParams to avoid dependency issues
-  const consoleTypeParam = useMemo(() => searchParams.get('consoleType'), [searchParams])
-  const consoleParam = useMemo(() => searchParams.get('console'), [searchParams])
+  // Sync state when props change (e.g., after navigation)
+  useEffect(() => {
+    setSelectedConsoleType(initialConsoleType)
+    setSelectedConsole(initialConsole)
+  }, [initialConsoleType, initialConsole])
+
+  // Get current URL search params safely (client-side only)
+  const getSearchParams = useCallback(() => {
+    if (typeof window === 'undefined') return new URLSearchParams()
+    return new URLSearchParams(window.location.search)
+  }, [])
 
   useEffect(() => {
     if (consoleTypes.length === 0) {
@@ -51,55 +66,33 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
     }
   }, [consoleTypes])
 
+  // Load consoles when initialConsoleType is provided (from server props)
   useEffect(() => {
-    // Set initial values from URL params
-    if (consoleTypeParam) {
-      setSelectedConsoleType(consoleTypeParam)
-      // Fetch consoles for this type
-      console.log(`Initial load: Fetching consoles for console type: ${consoleTypeParam}`)
-      fetch(`/api/console-types/${consoleTypeParam}/consoles`)
+    if (initialConsoleType) {
+      fetch(`/api/console-types/${initialConsoleType}/consoles`)
         .then(async res => {
-          console.log(`Initial load response status: ${res.status}`)
           if (!res.ok) {
-            const errorText = await res.text()
-            console.error(`HTTP error! status: ${res.status}, body: ${errorText}`)
             throw new Error(`HTTP error! status: ${res.status}`)
           }
           const contentType = res.headers.get('content-type')
           if (!contentType || !contentType.includes('application/json')) {
-            const text = await res.text()
-            console.error('Response is not JSON:', text)
             throw new Error('Response is not JSON')
           }
           return res.json()
         })
         .then(data => {
-          console.log('Initial load received data:', data)
           if (Array.isArray(data)) {
             setConsoles(data)
-            console.log(`✅ Initial load: Loaded ${data.length} consoles`)
-            if (consoleParam && consoleParam !== 'all') {
-              setSelectedConsole(consoleParam)
-            } else {
-              setSelectedConsole('')
-            }
           } else {
-            console.error('❌ Initial load: Non-array data:', data)
             setConsoles([])
-            setSelectedConsole('')
           }
         })
         .catch(error => {
-          console.error('❌ Initial load error fetching consoles:', error)
+          console.error('Error fetching consoles:', error)
           setConsoles([])
-          setSelectedConsole('')
         })
-    } else {
-      setSelectedConsoleType('')
-      setConsoles([])
-      setSelectedConsole('')
     }
-  }, [consoleTypeParam, consoleParam])
+  }, [initialConsoleType])
 
   const handleConsoleTypeChange = (consoleTypeId: string) => {
     setSelectedConsoleType(consoleTypeId)
@@ -158,7 +151,7 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
   }
 
   const updateURL = (consoleTypeId: string, consoleId: string) => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = getSearchParams()
     
     if (consoleTypeId) {
       params.set('consoleType', consoleTypeId)
@@ -172,7 +165,7 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
       params.delete('console')
     }
     
-    router.push(`/items?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const clearFilters = () => {
@@ -180,11 +173,11 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
     setSelectedConsole('')
     setConsoles([])
     
-    const params = new URLSearchParams(searchParams.toString())
+    const params = getSearchParams()
     params.delete('consoleType')
     params.delete('console')
     params.delete('category')
-    router.push(`/items?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   return (
