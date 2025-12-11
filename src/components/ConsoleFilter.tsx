@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ConsoleType, Console } from '@/types'
 
@@ -16,6 +16,10 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
   const [consoles, setConsoles] = useState<Console[]>([])
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Extract stable values from searchParams to avoid dependency issues
+  const consoleTypeParam = useMemo(() => searchParams.get('consoleType'), [searchParams])
+  const consoleParam = useMemo(() => searchParams.get('console'), [searchParams])
 
   useEffect(() => {
     if (consoleTypes.length === 0) {
@@ -49,9 +53,6 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
 
   useEffect(() => {
     // Set initial values from URL params
-    const consoleTypeParam = searchParams.get('consoleType')
-    const consoleParam = searchParams.get('console')
-    
     if (consoleTypeParam) {
       setSelectedConsoleType(consoleTypeParam)
       // Fetch consoles for this type
@@ -79,21 +80,26 @@ export default function ConsoleFilter({ consoleTypes = [], onConsoleChange }: Co
             console.log(`✅ Initial load: Loaded ${data.length} consoles`)
             if (consoleParam && consoleParam !== 'all') {
               setSelectedConsole(consoleParam)
+            } else {
+              setSelectedConsole('')
             }
           } else {
             console.error('❌ Initial load: Non-array data:', data)
             setConsoles([])
+            setSelectedConsole('')
           }
         })
         .catch(error => {
           console.error('❌ Initial load error fetching consoles:', error)
           setConsoles([])
+          setSelectedConsole('')
         })
     } else {
       setSelectedConsoleType('')
       setConsoles([])
+      setSelectedConsole('')
     }
-  }, [searchParams])
+  }, [consoleTypeParam, consoleParam])
 
   const handleConsoleTypeChange = (consoleTypeId: string) => {
     setSelectedConsoleType(consoleTypeId)

@@ -214,7 +214,18 @@ export default async function ItemsPage({
                   <SearchBar />
                   <CategoryFilter categories={categories} />
                 </div>
-                <ConsoleFilter consoleTypes={consoleTypes} />
+                <Suspense fallback={
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <div className="h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="h-12 bg-gray-200 rounded-xl animate-pulse"></div>
+                    </div>
+                  </div>
+                }>
+                  <ConsoleFilter consoleTypes={consoleTypes} />
+                </Suspense>
               </div>
             </div>
           </div>
