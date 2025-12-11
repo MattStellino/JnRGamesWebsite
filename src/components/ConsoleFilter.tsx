@@ -24,6 +24,13 @@ export default function ConsoleFilter({
   const router = useRouter()
   const pathname = usePathname()
 
+  // Update localConsoleTypes when consoleTypes prop changes
+  useEffect(() => {
+    if (consoleTypes.length > 0) {
+      setLocalConsoleTypes(consoleTypes)
+    }
+  }, [consoleTypes])
+
   // Sync state when props change (e.g., after navigation)
   useEffect(() => {
     setSelectedConsoleType(initialConsoleType)
@@ -101,10 +108,8 @@ export default function ConsoleFilter({
     
     if (consoleTypeId) {
       // Fetch consoles for selected type
-      console.log(`Fetching consoles for console type: ${consoleTypeId}`)
       fetch(`/api/console-types/${consoleTypeId}/consoles`)
         .then(async res => {
-          console.log(`Response status: ${res.status}`)
           if (!res.ok) {
             const errorText = await res.text()
             console.error(`HTTP error! status: ${res.status}, body: ${errorText}`)
@@ -119,25 +124,26 @@ export default function ConsoleFilter({
           return res.json()
         })
         .then(data => {
-          console.log('Received data:', data)
           // Ensure data is an array
           if (Array.isArray(data)) {
             setConsoles(data)
-            console.log(`✅ Loaded ${data.length} consoles for console type ${consoleTypeId}`)
           } else {
-            console.error('❌ Consoles API returned non-array data:', data)
+            console.error('Consoles API returned non-array data:', data)
             setConsoles([])
           }
         })
         .catch(error => {
-          console.error('❌ Error fetching consoles:', error)
+          console.error('Error fetching consoles:', error)
           setConsoles([])
         })
     } else {
       setConsoles([])
     }
 
-    updateURL(consoleTypeId, '')
+    // Use setTimeout to delay navigation and allow dropdown to close naturally
+    setTimeout(() => {
+      updateURL(consoleTypeId, '')
+    }, 0)
   }
 
   const handleConsoleChange = (consoleId: string) => {
@@ -192,7 +198,7 @@ export default function ConsoleFilter({
             id="consoleType"
             value={selectedConsoleType}
             onChange={(e) => handleConsoleTypeChange(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 bg-white transition-colors"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 bg-white transition-colors cursor-pointer"
           >
             <option value="">All Console Types</option>
             {Array.isArray(localConsoleTypes) && localConsoleTypes.map((consoleType) => (
@@ -213,7 +219,7 @@ export default function ConsoleFilter({
             value={selectedConsole}
             onChange={(e) => handleConsoleChange(e.target.value)}
             disabled={!selectedConsoleType}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 bg-white transition-colors"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 bg-white transition-colors cursor-pointer"
           >
             <option value="">
               {!selectedConsoleType 
