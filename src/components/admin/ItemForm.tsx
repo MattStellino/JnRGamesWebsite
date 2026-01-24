@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
+import ImageSelector from './ImageSelector'
 
 interface Category {
   id: number
@@ -390,40 +391,24 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-2">
-                Category *
-              </label>
-              <select
-                id="categoryId"
-                value={formData.categoryId}
-                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                required
-              >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL
-              </label>
-              <input
-                type="url"
-                id="imageUrl"
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
+          <div>
+            <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-2">
+              Category *
+            </label>
+            <select
+              id="categoryId"
+              value={formData.categoryId}
+              onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              required
+            >
+              <option value="">Select a category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -469,21 +454,13 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
             </div>
           </div>
 
-          {formData.imageUrl && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image Preview
-              </label>
-              <img
-                src={formData.imageUrl}
-                alt="Preview"
-                className="h-32 w-32 object-cover rounded-lg border"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            </div>
-          )}
+          {/* Image Selector */}
+          <ImageSelector
+            currentImageUrl={formData.imageUrl}
+            itemName={formData.name}
+            consoleName={availableConsoles.find(c => c.id.toString() === formData.consoleId)?.name}
+            onImageSelect={(url) => setFormData({ ...formData, imageUrl: url })}
+          />
 
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button

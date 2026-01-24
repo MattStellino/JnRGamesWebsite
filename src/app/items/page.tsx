@@ -2,9 +2,7 @@ import React, { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
 import { sanitizeInput } from '@/lib/security'
 import ItemCard from '@/components/ItemCard'
-import SearchBar from '@/components/SearchBar'
-import CategoryFilter from '@/components/CategoryFilter'
-import ConsoleFilter from '@/components/ConsoleFilter'
+import ItemsFilter from '@/components/ItemsFilter'
 import Pagination from '@/components/Pagination'
 import StructuredData from '@/components/StructuredData'
 
@@ -209,17 +207,16 @@ export default async function ItemsPage({
 
             {/* Search and Filters */}
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-              <div className="space-y-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <SearchBar />
-                  <CategoryFilter categories={categories} />
-                </div>
-                <ConsoleFilter 
-                  consoleTypes={consoleTypes}
-                  initialConsoleType={resolvedSearchParams.consoleType || ''}
-                  initialConsole={resolvedSearchParams.console || ''}
-                />
-              </div>
+              <ItemsFilter
+                categories={categories}
+                consoleTypes={consoleTypes}
+                initialFilters={{
+                  search: resolvedSearchParams.search || '',
+                  category: resolvedSearchParams.category || '',
+                  consoleType: resolvedSearchParams.consoleType || '',
+                  console: resolvedSearchParams.console || '',
+                }}
+              />
             </div>
           </div>
         </section>

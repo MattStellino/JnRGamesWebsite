@@ -18,6 +18,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'media.rawg.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
     ],
   },
   
@@ -29,8 +37,6 @@ const nextConfig = {
 
   // Next 16: server external packages
   serverExternalPackages: ['@prisma/client'],
-  
-  // Remove turbopack config - let Next.js handle it automatically
   
   // Security and caching headers
   async headers() {

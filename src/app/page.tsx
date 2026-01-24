@@ -41,7 +41,7 @@ export default function Home() {
                 aria-label="View our current buy prices for gaming items"
               >
                 <DollarSign className="inline h-5 w-5 mr-2 animate-spin-slow" aria-hidden="true" />
-                See Our Prices
+                See what we pay
               </Link>
               <Link
                 href="/contact"
@@ -49,7 +49,7 @@ export default function Home() {
                 aria-label="Contact us to sell your gaming items"
               >
                 <Gamepad2 className="inline h-5 w-5 mr-2 animate-wiggle" aria-hidden="true" />
-                Sell to Us
+                Contact us to sell
               </Link>
             </div>
 
@@ -101,7 +101,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Quick Process</h3>
               <p className="text-gray-600 leading-relaxed">
-                Get a quote and complete your sale in minutes, not days
+                Fast, stress-free quotes with service that comes to you.
               </p>
             </article>
 
@@ -178,9 +178,17 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-8">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 mb-4">
               <span className="text-red-600">*</span> All items must be in good condition and verified by one of our staff members before purchase.
             </p>
+            <Link
+              href="/condition-guide"
+              className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium group focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              aria-label="Learn about condition guidelines for selling gaming items"
+            >
+              Condition Guidelines
+              <span className="ml-2 group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
+            </Link>
           </div>
         </div>
       </section>

@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
+import MobileSellList from './MobileSellList'
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false)
@@ -140,8 +141,8 @@ export default function MobileMenu() {
                 {session && pathname.startsWith('/admin') && (
                   <>
                     <div className="mx-6 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-                    <Link 
-                      href="/admin" 
+                    <Link
+                      href="/admin"
                       onClick={closeMenu}
                       className="flex items-center px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all duration-300 transform hover:translate-x-2 group"
                       role="menuitem"
@@ -157,6 +158,9 @@ export default function MobileMenu() {
                   </>
                 )}
               </div>
+
+              {/* Sell List Section */}
+              <MobileSellList onNavigate={closeMenu} />
             </nav>
           </div>
         </>

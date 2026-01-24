@@ -13,6 +13,8 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { SessionProvider } from '@/components/SessionProvider'
 import SessionManager from '@/components/SessionManager'
 import AdminNavLink from '@/components/AdminNavLink'
+import { SellListProvider } from '@/contexts/SellListContext'
+import SellList from '@/components/SellList'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -109,6 +111,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <SessionProvider>
+          <SellListProvider>
           <SessionManager />
           <a 
             href="#main-content" 
@@ -147,8 +150,8 @@ export default function RootLayout({
                   {/* Divider */}
                   <div className="w-px h-8 bg-gradient-to-b from-transparent via-gray-300 to-transparent mx-2"></div>
                   
-                  <Link 
-                    href="/contact" 
+                  <Link
+                    href="/contact"
                     className="relative text-gray-700 hover:text-red-600 font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-xl px-6 py-3 group"
                     aria-label="Contact us to sell your items"
                   >
@@ -156,6 +159,12 @@ export default function RootLayout({
                     <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-red-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-red-600 group-hover:w-8 transition-all duration-300"></div>
                   </Link>
+
+                  {/* Divider */}
+                  <div className="w-px h-8 bg-gradient-to-b from-transparent via-gray-300 to-transparent mx-2"></div>
+
+                  {/* Sell List */}
+                  <SellList />
                 </div>
 
                 {/* Admin Navigation - Only shows when logged in */}
@@ -177,6 +186,7 @@ export default function RootLayout({
           <Footer />
           <Toaster />
           <KeyboardAdminAccess />
+          </SellListProvider>
         </SessionProvider>
       </body>
     </html>

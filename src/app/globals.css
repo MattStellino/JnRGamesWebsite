@@ -25,3 +25,38 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+/* Override browser autofill styling (removes green/red highlighting) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  box-shadow: 0 0 0 1000px white inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Remove validation styling (valid/invalid states) */
+input:valid,
+input:invalid,
+select:valid,
+select:invalid {
+  box-shadow: none;
+  outline: none;
+}
+
+/* Ensure consistent input styling */
+input,
+select {
+  background-color: white;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+}

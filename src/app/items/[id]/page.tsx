@@ -1,10 +1,12 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, DollarSign, Tag, Gamepad2, Mail, Phone, AlertCircle } from 'lucide-react'
 import StructuredData from '@/components/StructuredData'
+import AutoImage from '@/components/AutoImage'
+import BackButton from '@/components/BackButton'
+import ItemDetailSellButton from '@/components/ItemDetailSellButton'
 
 async function getItem(id: string) {
   try {
@@ -54,36 +56,20 @@ export default async function ItemDetailsPage({
           <div className="max-w-7xl mx-auto px-4 py-8">
             {/* Back Button */}
             <div className="mb-6">
-              <Link
-                href="/items"
-                className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+              <BackButton fallbackHref="/items">
                 Back to What We Buy
-              </Link>
+              </BackButton>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Item Image */}
               <div className="space-y-4">
-                {item.imageUrl ? (
-                  <div className="aspect-square relative bg-gray-100 rounded-lg overflow-hidden">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                  </div>
-                ) : (
-                  <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <Gamepad2 className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500">No image available</p>
-                    </div>
-                  </div>
-                )}
+                <AutoImage
+                  itemId={item.id}
+                  itemName={item.name}
+                  initialImageUrl={item.imageUrl}
+                  className="aspect-square"
+                />
               </div>
 
               {/* Item Details */}
@@ -313,14 +299,17 @@ export default async function ItemDetailsPage({
                     <p className="text-green-700 text-sm text-center mb-2">
                       <span className="text-red-600">*</span> All items must be in good working condition
                     </p>
-                    <p className="text-center">
-                      <Link 
-                        href="/condition-guide" 
+                    <p className="text-center mb-4">
+                      <Link
+                        href="/condition-guide"
                         className="text-blue-600 hover:text-blue-800 text-sm underline transition-colors"
                       >
                         Not sure what good condition looks like? Check our guide →
                       </Link>
                     </p>
+                    <div className="flex justify-center">
+                      <ItemDetailSellButton item={item} />
+                    </div>
                   </div>
                 </div>
 
