@@ -54,16 +54,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Find duplicates to delete
-    const toDelete = []
-    const duplicates = []
+    const toDelete: any[] = []
+    const duplicates: any[] = []
 
     for (const [key, games] of Array.from(gameGroups.entries())) {
       if (games.length > 1) {
         // Check which games show "Complete in Box" only vs "Game Only"
-        const completeInBoxOnly = []
-        const hasGameOnly = []
+        const completeInBoxOnly: any[] = []
+        const hasGameOnly: any[] = []
 
-        games.forEach(game => {
+        games.forEach((game: any) => {
           const isClassicNintendo = ['NES', 'SNES', 'Nintendo 64'].includes(game.console.name)
           
           // For modern systems: Complete in Box only if price exists but no goodPrice/acceptablePrice
@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
 
     // Delete the items
     let deleted = 0
-    const deletedItems = []
-    const errors = []
+    const deletedItems: any[] = []
+    const errors: any[] = []
 
     for (const item of toDelete) {
       try {

@@ -113,7 +113,7 @@ export default function DeleteDuplicateGamesButton() {
             <p className="text-xs font-medium text-gray-700 mb-2">Games to Delete (under "Other"):</p>
             {duplicates.map((dup, idx) => (
               <div key={idx} className="text-xs text-gray-600 mb-1">
-                "{dup.name}" (Other - {dup.otherConsole}) → Keep: {dup.correctVersions.map(v => `${v.consoleType} - ${v.console}`).join(', ')}
+                "{dup.name}" (Other - {dup.otherConsole}) → Keep: {dup.correctVersions.map((v: any) => `${v.consoleType} - ${v.console}`).join(', ')}
               </div>
             ))}
           </div>
