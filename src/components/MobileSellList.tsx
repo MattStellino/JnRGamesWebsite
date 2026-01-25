@@ -97,7 +97,7 @@ export default function MobileSellList({ onNavigate }: MobileSellListProps) {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => addItem(item)}
+                          onClick={() => addItem({ id: item.id, name: item.name, price: item.price, category: item.category, consoleName: item.consoleName, consoleType: item.consoleType, imageUrl: item.imageUrl })}
                           className="p-1 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
                           aria-label={`Increase quantity of ${item.name}`}
                         >
@@ -107,7 +107,7 @@ export default function MobileSellList({ onNavigate }: MobileSellListProps) {
                         </button>
                       </div>
                       <span className="text-green-600 font-semibold text-sm">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${((Number(item.price) || 0) * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   </div>

@@ -23,9 +23,9 @@ interface ItemDetailSellButtonProps {
 
 export default function ItemDetailSellButton({ item }: ItemDetailSellButtonProps) {
   const sellListItem: Omit<SellListItem, 'quantity'> = {
-    id: item.id,
+    id: Number(item.id),
     name: item.name,
-    price: item.price,
+    price: Number(item.price) || 0,
     category: item.category.name,
     consoleName: item.console?.name,
     consoleType: item.console?.consoleType?.name,

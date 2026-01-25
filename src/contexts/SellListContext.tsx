@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 export interface SellListItem {
   id: number
@@ -19,112 +19,126 @@ interface SellListContextType {
   removeItem: (id: number) => void
   decrementItem: (id: number) => void
   clearList: () => void
-  isInList: (id: number) => boolean
   getQuantity: (id: number) => number
+  isInList: (id: number) => boolean
   totalValue: number
   itemCount: number
 }
 
-const SellListContext = createContext<SellListContextType | null>(null)
+const SellListContext = createContext<SellListContextType | undefined>(undefined)
 
 const STORAGE_KEY = 'jnr-sell-list'
 
 export function SellListProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<SellListItem[]>([])
-  const [isInitialized, setIsInitialized] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   // Load from localStorage on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
       try {
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          if (Array.isArray(parsed)) {
-            // Migrate old items without quantity
-            const migratedItems = parsed.map((item: SellListItem) => ({
-              ...item,
-              quantity: item.quantity || 1
-            }))
-            setItems(migratedItems)
-          }
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) {
+          setItems(parsed.map((item: SellListItem) => ({
+            ...item,
+            quantity: item.quantity || 1
+          })))
         }
-      } catch (error) {
-        console.error('Error loading sell list from localStorage:', error)
+      } catch (e) {
+        console.error('Failed to parse sell list', e)
       }
-      setIsInitialized(true)
     }
+    setIsLoaded(true)
   }, [])
 
   // Save to localStorage whenever items change
   useEffect(() => {
-    if (isInitialized && typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-      } catch (error) {
-        console.error('Error saving sell list to localStorage:', error)
-      }
+    if (isLoaded) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
     }
-  }, [items, isInitialized])
+  }, [items, isLoaded])
 
-  const addItem = useCallback((item: Omit<SellListItem, 'quantity'>) => {
-    setItems(prev => {
-      const existingIndex = prev.findIndex(i => i.id === item.id)
-      if (existingIndex >= 0) {
-        // Increment quantity if already in list
-        const updated = [...prev]
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: updated[existingIndex].quantity + 1
+  // Add item or increment quantity
+  const addItem = (item: Omit<SellListItem, 'quantity'>) => {
+    // Ensure id and price are proper numbers
+    const itemId = Number(item.id)
+    const itemPrice = Number(item.price) || 0
+
+    setItems(currentItems => {
+      const existingIndex = currentItems.findIndex(i => Number(i.id) === itemId)
+
+      if (existingIndex !== -1) {
+        // Item exists - increment quantity
+        const newItems = [...currentItems]
+        newItems[existingIndex] = {
+          ...newItems[existingIndex],
+          quantity: newItems[existingIndex].quantity + 1
         }
-        return updated
+        return newItems
+      } else {
+        // New item - add with quantity 1
+        return [...currentItems, {
+          ...item,
+          id: itemId,
+          price: itemPrice,
+          quantity: 1
+        }]
       }
-      // Add new item with quantity 1
-      return [...prev, { ...item, quantity: 1 }]
     })
-  }, [])
+  }
 
-  const decrementItem = useCallback((id: number) => {
-    setItems(prev => {
-      const existingIndex = prev.findIndex(i => i.id === id)
-      if (existingIndex >= 0) {
-        const currentQuantity = prev[existingIndex].quantity
-        if (currentQuantity <= 1) {
-          // Remove item if quantity would go to 0
-          return prev.filter(item => item.id !== id)
+  // Decrement quantity or remove if quantity becomes 0
+  const decrementItem = (id: number) => {
+    const numId = Number(id)
+    setItems(currentItems => {
+      const existingIndex = currentItems.findIndex(i => Number(i.id) === numId)
+
+      if (existingIndex !== -1) {
+        const currentQty = currentItems[existingIndex].quantity
+        if (currentQty <= 1) {
+          // Remove item
+          return currentItems.filter(i => Number(i.id) !== numId)
+        } else {
+          // Decrement
+          const newItems = [...currentItems]
+          newItems[existingIndex] = {
+            ...newItems[existingIndex],
+            quantity: currentQty - 1
+          }
+          return newItems
         }
-        // Decrement quantity
-        const updated = [...prev]
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: currentQuantity - 1
-        }
-        return updated
       }
-      return prev
+      return currentItems
     })
-  }, [])
+  }
 
-  const removeItem = useCallback((id: number) => {
-    setItems(prev => prev.filter(item => item.id !== id))
-  }, [])
+  // Remove item completely
+  const removeItem = (id: number) => {
+    const numId = Number(id)
+    setItems(currentItems => currentItems.filter(i => Number(i.id) !== numId))
+  }
 
-  const clearList = useCallback(() => {
+  // Clear all items
+  const clearList = () => {
     setItems([])
-  }, [])
+  }
 
-  const isInList = useCallback((id: number) => {
-    return items.some(item => item.id === id)
-  }, [items])
+  // Get quantity of a specific item
+  const getQuantity = (id: number): number => {
+    const numId = Number(id)
+    const item = items.find(i => Number(i.id) === numId)
+    return item ? item.quantity : 0
+  }
 
-  const getQuantity = useCallback((id: number) => {
-    const item = items.find(i => i.id === id)
-    return item?.quantity || 0
-  }, [items])
+  // Check if item is in list
+  const isInList = (id: number): boolean => {
+    const numId = Number(id)
+    return items.some(i => Number(i.id) === numId)
+  }
 
-  // Calculate total value considering quantities
-  const totalValue = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  // Total item count is sum of all quantities
+  // Calculate totals
+  const totalValue = items.reduce((sum, item) => sum + ((Number(item.price) || 0) * item.quantity), 0)
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
@@ -134,8 +148,8 @@ export function SellListProvider({ children }: { children: ReactNode }) {
       removeItem,
       decrementItem,
       clearList,
-      isInList,
       getQuantity,
+      isInList,
       totalValue,
       itemCount,
     }}>
@@ -144,7 +158,7 @@ export function SellListProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useSellList(): SellListContextType {
+export function useSellList() {
   const context = useContext(SellListContext)
   if (!context) {
     throw new Error('useSellList must be used within a SellListProvider')
