@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // Find all duplicates
     const duplicates = []
-    for (const [key, games] of gameGroups) {
+    for (const [key, games] of Array.from(gameGroups.entries())) {
       if (games.length > 1) {
         const duplicateSet = games.map(game => {
           const isClassic = ['NES', 'SNES', 'Nintendo 64'].includes(game.console.name)

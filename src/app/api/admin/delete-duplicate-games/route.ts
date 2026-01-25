@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const toDelete = []
     const duplicates = []
 
-    for (const [key, games] of gameGroups) {
+    for (const [key, games] of Array.from(gameGroups.entries())) {
       if (games.length > 1) {
         // Check which games show "Complete in Box" only vs "Game Only"
         const completeInBoxOnly = []
