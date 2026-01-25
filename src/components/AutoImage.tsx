@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { Gamepad2, Loader2 } from 'lucide-react'
 
 interface AutoImageProps {
@@ -62,17 +61,14 @@ export default function AutoImage({
     )
   }
 
-  // Image found
+  // Image found - use regular img tag for external URLs
   if (imageUrl && !error) {
     return (
       <div className={`relative bg-gray-100 rounded-lg overflow-hidden ${className}`}>
-        <Image
+        <img
           src={imageUrl}
           alt={itemName}
-          fill
-          className="object-contain"
-          priority
-          unoptimized={imageUrl.includes('wikimedia.org') || imageUrl.includes('rawg.io')}
+          className="w-full h-full object-contain"
           onError={() => setError(true)}
         />
       </div>

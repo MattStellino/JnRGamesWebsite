@@ -1,12 +1,17 @@
 'use client'
 
 import React, { createContext, useContext, ReactNode } from 'react'
-import { useFilters, UseFiltersReturn } from '@/hooks/useFilters'
+import { useFilters, UseFiltersReturn, FilterState } from '@/hooks/useFilters'
 
 const FilterContext = createContext<UseFiltersReturn | null>(null)
 
-export function FilterProvider({ children }: { children: ReactNode }) {
-  const filters = useFilters()
+interface FilterProviderProps {
+  children: ReactNode
+  initialFilters?: Partial<FilterState>
+}
+
+export function FilterProvider({ children, initialFilters }: FilterProviderProps) {
+  const filters = useFilters(initialFilters)
 
   return (
     <FilterContext.Provider value={filters}>

@@ -27,56 +27,64 @@ export interface RAWGSearchResponse {
   results: RAWGGame[]
 }
 
-// Map our console names to RAWG platform slugs
-const consoleToPlatformSlug: Record<string, string> = {
+// Map our console names to RAWG platform IDs
+const consoleToPlatformId: Record<string, string> = {
   // PlayStation
-  'PS5': 'playstation5',
-  'PlayStation 5': 'playstation5',
-  'PS4': 'playstation4',
-  'PlayStation 4': 'playstation4',
-  'PS3': 'playstation3',
-  'PlayStation 3': 'playstation3',
-  'PS2': 'playstation2',
-  'PlayStation 2': 'playstation2',
-  'PS1': 'playstation',
-  'PlayStation': 'playstation',
-  'PSP': 'psp',
-  'PS Vita': 'ps-vita',
+  'PS5': '187',
+  'PlayStation 5': '187',
+  'Playstation 5': '187',
+  'PS4': '18',
+  'PlayStation 4': '18',
+  'Playstation 4': '18',
+  'PS3': '16',
+  'PlayStation 3': '16',
+  'Playstation 3': '16',
+  'PS2': '15',
+  'PlayStation 2': '15',
+  'Playstation 2': '15',
+  'PS1': '27',
+  'PlayStation': '27',
+  'PSP': '17',
+  'PS Vita': '19',
 
   // Xbox
-  'Xbox Series X': 'xbox-series-x',
-  'Xbox Series S': 'xbox-series-x',
-  'Xbox One': 'xbox-one',
-  'Xbox 360': 'xbox360',
-  'Xbox': 'xbox-old',
+  'Xbox Series X': '186',
+  'Xbox Series S': '186',
+  'Xbox Series X/S': '186',
+  'Xbox One': '1',
+  'Xbox 360': '14',
+  'Xbox': '80',
 
   // Nintendo
-  'Nintendo Switch': 'nintendo-switch',
-  'Wii U': 'wii-u',
-  'Wii': 'wii',
-  'Nintendo 3DS': 'nintendo-3ds',
-  '3DS': 'nintendo-3ds',
-  'Nintendo DS': 'nintendo-ds',
-  'DS': 'nintendo-ds',
-  'GameCube': 'gamecube',
-  'Nintendo 64': 'nintendo-64',
-  'N64': 'nintendo-64',
-  'SNES': 'snes',
-  'Super Nintendo': 'snes',
-  'NES': 'nes',
-  'Game Boy Advance': 'game-boy-advance',
-  'GBA': 'game-boy-advance',
-  'Game Boy Color': 'game-boy-color',
-  'Game Boy': 'game-boy',
+  'Nintendo Switch': '7',
+  'Wii U': '10',
+  'Wii': '11',
+  'Nintendo Wii': '11',
+  'Nintendo 3DS': '8',
+  '3DS': '8',
+  'Nintendo DS': '9',
+  'DS': '9',
+  'GameCube': '105',
+  'Nintendo GameCube': '105',
+  'Nintendo 64': '83',
+  'N64': '83',
+  'SNES': '79',
+  'Super Nintendo': '79',
+  'NES': '49',
+  'Game Boy Advance': '24',
+  'GBA': '24',
+  'Game Boy Color': '43',
+  'Game Boy': '26',
+  'Gameboy': '26',
 
   // Sega
-  'Dreamcast': 'dreamcast',
-  'Saturn': 'sega-saturn',
-  'Sega Genesis': 'genesis',
-  'Genesis': 'genesis',
-  'Mega Drive': 'genesis',
-  'Sega CD': 'sega-cd',
-  'Game Gear': 'game-gear',
+  'Dreamcast': '106',
+  'Sega Saturn': '107',
+  'Saturn': '107',
+  'Sega Genesis': '167',
+  'Genesis': '167',
+  'Mega Drive': '167',
+  'Game Gear': '77',
 }
 
 export async function searchGames(
@@ -99,8 +107,8 @@ export async function searchGames(
     })
 
     // Add platform filter if console is specified
-    if (consoleName && consoleToPlatformSlug[consoleName]) {
-      params.append('platforms', consoleToPlatformSlug[consoleName])
+    if (consoleName && consoleToPlatformId[consoleName]) {
+      params.append('platforms', consoleToPlatformId[consoleName])
     }
 
     const response = await fetch(`${RAWG_BASE_URL}/games?${params.toString()}`)

@@ -27,26 +27,36 @@ export interface UseFiltersReturn {
   hasConsoleFilters: boolean
 }
 
-export function useFilters(): UseFiltersReturn {
+export function useFilters(initialFilters?: Partial<FilterState>): UseFiltersReturn {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // Initialize state from URL params
+  // Initialize state from initial filters (server-provided) or URL params
   const [filters, setFilters] = useState<FilterState>(() => ({
-    search: searchParams.get('search') || '',
-    category: searchParams.get('category') || '',
-    consoleType: searchParams.get('consoleType') || '',
-    console: searchParams.get('console') || '',
+    search: initialFilters?.search || searchParams.get('search') || '',
+    category: initialFilters?.category || searchParams.get('category') || '',
+    consoleType: initialFilters?.consoleType || searchParams.get('consoleType') || '',
+    console: initialFilters?.console || searchParams.get('console') || '',
   }))
 
   // Sync state when URL changes (e.g., browser back/forward)
   useEffect(() => {
-    setFilters({
+    const newFilters = {
       search: searchParams.get('search') || '',
       category: searchParams.get('category') || '',
       consoleType: searchParams.get('consoleType') || '',
       console: searchParams.get('console') || '',
+    }
+    // Only update if actually changed to avoid unnecessary re-renders
+    setFilters(prev => {
+      if (prev.search !== newFilters.search ||
+          prev.category !== newFilters.category ||
+          prev.consoleType !== newFilters.consoleType ||
+          prev.console !== newFilters.console) {
+        return newFilters
+      }
+      return prev
     })
   }, [searchParams])
 

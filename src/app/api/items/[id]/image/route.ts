@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { fetchItemImage } from '@/lib/image-fetcher'
 
 // GET - Fetch and return image URL for an item (also saves to DB)
+// Use ?refresh=true to force re-fetch even if image exists
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,6 +11,8 @@ export async function GET(
   try {
     const resolvedParams = await params
     const itemId = parseInt(resolvedParams.id)
+    const { searchParams } = new URL(request.url)
+    const forceRefresh = searchParams.get('refresh') === 'true'
 
     if (isNaN(itemId)) {
       return NextResponse.json({ error: 'Invalid item ID' }, { status: 400 })
@@ -32,8 +35,8 @@ export async function GET(
       return NextResponse.json({ error: 'Item not found' }, { status: 404 })
     }
 
-    // If item already has an image, return it
-    if (item.imageUrl) {
+    // If item already has an image and not forcing refresh, return it
+    if (item.imageUrl && !forceRefresh) {
       return NextResponse.json({ imageUrl: item.imageUrl, cached: true })
     }
 
