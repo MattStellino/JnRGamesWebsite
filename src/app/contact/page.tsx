@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react'
+import { Mail, Phone, MapPin, Clock, Send, ShoppingBag, X, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useSellList } from '@/contexts/SellListContext'
 
 export default function ContactPage() {
+  const { items: sellListItems, removeItem, clearList, totalValue, itemCount } = useSellList()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,7 +26,17 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          sellListItems: sellListItems.map(item => ({
+            name: item.name,
+            category: item.category,
+            consoleName: item.consoleName,
+            price: item.price,
+            quantity: item.quantity
+          })),
+          sellListTotal: totalValue
+        }),
       })
 
       const result = await response.json()
@@ -72,6 +84,82 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+
+      {/* Sell List Section */}
+      {itemCount > 0 && (
+        <div className="max-w-6xl mx-auto px-4 pb-8">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ShoppingBag className="h-6 w-6 text-white" />
+                <h2 className="text-white font-semibold text-lg">Your Sell List ({itemCount} items)</h2>
+              </div>
+              <button
+                onClick={clearList}
+                className="flex items-center gap-1 text-white/80 hover:text-white text-sm transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+                Clear All
+              </button>
+            </div>
+
+            {/* Items Grid */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {sellListItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 truncate">
+                        {item.name}
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
+                          {item.category}
+                        </span>
+                        {item.consoleName && (
+                          <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                            {item.consoleName}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm text-gray-500">
+                          Qty: {item.quantity}
+                        </span>
+                        <span className="text-green-600 font-semibold">
+                          ${((Number(item.price) || 0) * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                      aria-label={`Remove ${item.name} from sell list`}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total */}
+              <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
+                <span className="text-gray-600 font-medium">Estimated Total Value:</span>
+                <span className="text-2xl font-bold text-green-600">
+                  ${totalValue.toFixed(2)}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                * Final quote may vary based on item condition. These items will be included in your quote request.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-8">
