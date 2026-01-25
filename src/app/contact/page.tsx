@@ -87,7 +87,7 @@ export default function ContactPage() {
 
       {/* Sell List Section */}
       {itemCount > 0 && (
-        <div className="max-w-6xl mx-auto px-4 pb-8">
+        <div className="max-w-6xl mx-auto px-4 pt-8 pb-8">
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 flex items-center justify-between">
