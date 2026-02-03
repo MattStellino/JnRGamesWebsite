@@ -78,10 +78,15 @@ export default function ImageSelector({
         body: formData,
       })
 
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Upload failed')
+      }
+
       const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed')
+      if (!data.imageUrl) {
+        throw new Error('No image URL returned from upload')
       }
 
       onImageSelect(data.imageUrl)
