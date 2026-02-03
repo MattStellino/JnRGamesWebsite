@@ -53,9 +53,9 @@ export default function MobileMenu() {
           />
           
           {/* Menu Panel */}
-          <div 
-            id="mobile-menu" 
-            className="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out"
+          <div
+            id="mobile-menu"
+            className="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out flex flex-col"
             role="menu"
           >
             {/* Menu Header */}
@@ -73,7 +73,7 @@ export default function MobileMenu() {
             </div>
             
             {/* Menu Items */}
-            <nav className="py-4">
+            <nav className="flex-1 overflow-y-auto py-4">
               <div className="space-y-2">
                 <Link 
                   href="/items" 
