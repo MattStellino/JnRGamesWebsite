@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
+import toast from 'react-hot-toast'
 import ImageSelector from './ImageSelector'
 
 interface Category {
@@ -177,11 +178,15 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
         onSubmit(savedItem)
       } else {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to save item')
+        const errorMessage = error.error || 'Failed to save item'
+        toast.error(errorMessage)
+        throw new Error(errorMessage)
       }
     } catch (error) {
       console.error('Error saving item:', error)
-      // Error handling will be done by parent component
+      if (error instanceof Error && !error.message.includes('Failed to save item')) {
+        toast.error('An unexpected error occurred while saving the item')
+      }
     } finally {
       setLoading(false)
     }
@@ -292,7 +297,14 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
                       min="0"
                       id="completeConsolePrice"
                       value={formData.completeConsolePrice || formData.price}
-                      onChange={(e) => setFormData({ ...formData, completeConsolePrice: e.target.value, price: e.target.value })}
+                      onChange={(e) => {
+                        const newFormData = { ...formData, completeConsolePrice: e.target.value }
+                        // Set the main price to complete console price (highest value option)
+                        if (e.target.value) {
+                          newFormData.price = e.target.value
+                        }
+                        setFormData(newFormData)
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                       required
                     />
@@ -386,7 +398,7 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="Enter item description..."
             />
           </div>
@@ -441,7 +453,7 @@ export default function ItemForm({ item, categories, consoleTypes, onSubmit, onC
                 value={formData.consoleId}
                 onChange={(e) => setFormData({ ...formData, consoleId: e.target.value })}
                 disabled={!selectedConsoleType}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
                 required
               >
                 <option value="">Select a console</option>
