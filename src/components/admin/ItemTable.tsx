@@ -64,6 +64,11 @@ interface ItemTableProps {
   consoleTypes: ConsoleType[]
 }
 
+function isLegacyRawgImage(url: string | null | undefined) {
+  if (!url) return false
+  return /rawg\.io/i.test(url)
+}
+
 // Helper function to format dates consistently (avoiding hydration errors)
 function formatDate(dateString: string | Date): string {
   const date = typeof dateString === 'string' ? new Date(dateString) : dateString
@@ -96,6 +101,7 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
 
   // Ref to scroll to the form when opening create/edit
   const formContainerRef = useRef<HTMLDivElement | null>(null)
+  const refreshedImageIdsRef = useRef<Set<number>>(new Set())
 
   // Filter and sort items
   const filterAndSortItems = () => {
@@ -221,6 +227,36 @@ export default function ItemTable({ initialItems, categories, consoleTypes }: It
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentItems = filteredItems.slice(startIndex, endIndex)
+
+  const refreshGameImage = async (itemId: number) => {
+    try {
+      const response = await fetch(`/api/items/${itemId}/image?refresh=true`)
+      const data = await response.json()
+      setItems(prev =>
+        prev.map(item =>
+          item.id === itemId ? { ...item, imageUrl: data.imageUrl || null } : item
+        )
+      )
+    } catch {
+      // Silent fail - keep existing image
+    }
+  }
+
+  useEffect(() => {
+    const targets = currentItems.filter(
+      item =>
+        item.category?.name === 'Games' &&
+        (!item.imageUrl || isLegacyRawgImage(item.imageUrl)) &&
+        !refreshedImageIdsRef.current.has(item.id)
+    )
+
+    if (targets.length === 0) return
+
+    targets.forEach(item => {
+      refreshedImageIdsRef.current.add(item.id)
+      refreshGameImage(item.id)
+    })
+  }, [currentItems])
 
   // Adjust page if current page is out of bounds (e.g., after deletion)
   useEffect(() => {

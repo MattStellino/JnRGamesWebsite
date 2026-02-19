@@ -10,6 +10,11 @@ interface AutoImageProps {
   className?: string
 }
 
+function isLegacyRawgImage(url: string | null | undefined) {
+  if (!url) return false
+  return /rawg\.io/i.test(url)
+}
+
 export default function AutoImage({
   itemId,
   itemName,
@@ -21,8 +26,10 @@ export default function AutoImage({
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    // If we already have an image, don't fetch
-    if (initialImageUrl) {
+    const shouldRefresh = isLegacyRawgImage(initialImageUrl)
+
+    // If we already have an image and it is not a legacy RAWG image, don't fetch
+    if (initialImageUrl && !shouldRefresh) {
       setImageUrl(initialImageUrl)
       setIsLoading(false)
       return
@@ -31,12 +38,19 @@ export default function AutoImage({
     // Fetch the image
     const fetchImage = async () => {
       try {
-        setIsLoading(true)
-        const response = await fetch(`/api/items/${itemId}/image`)
+        if (!initialImageUrl) {
+          setIsLoading(true)
+        }
+
+        const refreshParam = shouldRefresh ? '?refresh=true' : ''
+        const response = await fetch(`/api/items/${itemId}/image${refreshParam}`)
         const data = await response.json()
 
         if (data.imageUrl) {
           setImageUrl(data.imageUrl)
+        } else if (shouldRefresh) {
+          // If a legacy RAWG URL cannot be replaced, stop showing the stale image.
+          setImageUrl(null)
         }
       } catch (err) {
         console.error('Failed to fetch image:', err)

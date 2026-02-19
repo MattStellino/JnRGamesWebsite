@@ -1,7 +1,7 @@
 // Automatic image fetching for items
 // Fetches appropriate images based on item category
 
-import { searchGames } from './rawg'
+import { getCoverImageUrl, searchGames } from './igdb'
 
 interface ItemForImage {
   id: number
@@ -18,12 +18,22 @@ interface ItemForImage {
   } | null
 }
 
+function normalizeGameTitle(title: string) {
+  return title
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\[[^\]]*\]/g, ' ')
+    .replace(/[-_/]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 // Fetch the best matching image for an item
 export async function fetchItemImage(item: ItemForImage): Promise<string | null> {
   const categoryName = item.category.name
   const consoleName = item.console?.name
 
-  // For games, use RAWG API
+  // For games, use IGDB API
   if (categoryName === 'Games') {
     return await fetchGameImage(item.name, consoleName)
   }
@@ -46,27 +56,29 @@ export async function fetchItemImage(item: ItemForImage): Promise<string | null>
   return null
 }
 
-// Fetch game cover art from RAWG
+// Fetch game cover art from IGDB
 async function fetchGameImage(gameName: string, consoleName?: string | null): Promise<string | null> {
   try {
     const results = await searchGames(gameName, consoleName || undefined, 1, 5)
 
-    if (!results || results.results.length === 0) {
+    if (!results || results.length === 0) {
       return null
     }
 
-    // Find the best match - prefer exact name match
-    const exactMatch = results.results.find(
-      game => game.name.toLowerCase() === gameName.toLowerCase()
+    // Find the best match - prefer normalized exact name match
+    const normalizedInput = normalizeGameTitle(gameName)
+    const exactMatch = results.find(
+      game => normalizeGameTitle(game.name) === normalizedInput
     )
 
-    if (exactMatch?.background_image) {
-      return exactMatch.background_image
+    const exactCover = getCoverImageUrl(exactMatch?.cover?.image_id)
+    if (exactCover) {
+      return exactCover
     }
 
     // Otherwise return the first result with an image
-    const withImage = results.results.find(game => game.background_image)
-    return withImage?.background_image || null
+    const withImage = results.find(game => game.cover?.image_id)
+    return getCoverImageUrl(withImage?.cover?.image_id)
   } catch (error) {
     console.error('Error fetching game image:', error)
     return null

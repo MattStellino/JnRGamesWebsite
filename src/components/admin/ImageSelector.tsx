@@ -283,7 +283,7 @@ export default function ImageSelector({
                       <ImageIcon className="w-12 h-12 mx-auto mb-2 text-gray-400" />
                       <p>Search for a game to see cover art</p>
                       <p className="text-sm mt-1">
-                        Powered by RAWG Video Games Database
+                        Powered by IGDB
                       </p>
                     </div>
                   )}
