@@ -1,7 +1,55 @@
 const fs = require('fs')
 const path = require('path')
-const { PrismaClient } = require('@prisma/client')
 
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return false
+  }
+
+  const content = fs.readFileSync(filePath, 'utf8')
+  const lines = content.split(/\r?\n/)
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('#')) continue
+
+    const idx = line.indexOf('=')
+    if (idx === -1) continue
+
+    const key = line.slice(0, idx).trim()
+    let value = line.slice(idx + 1).trim()
+
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1)
+    }
+
+    // Do not override values explicitly set in the shell/session.
+    if (!(key in process.env)) {
+      process.env[key] = value
+    }
+  }
+
+  return true
+}
+
+function resolveEnvFileFromArgs() {
+  const idx = process.argv.indexOf('--env-file')
+  if (idx !== -1 && process.argv[idx + 1]) {
+    return process.argv[idx + 1]
+  }
+  return null
+}
+
+const explicitEnvFile = resolveEnvFileFromArgs()
+const defaultEnvOrder = ['.env.local', '.env', '.env.production']
+const selectedEnvFile = explicitEnvFile || defaultEnvOrder.find((file) => fs.existsSync(path.join(process.cwd(), file)))
+
+if (selectedEnvFile) {
+  loadEnvFile(path.join(process.cwd(), selectedEnvFile))
+  console.log(`Using env file: ${selectedEnvFile}`)
+}
+
+const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const mappings = [
@@ -117,6 +165,97 @@ const mappings = [
     sourceDir: 'website pictures',
     sourceFile: 'xbox_series_s.jpg',
     destFile: 'console_xbox_series_s.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Gameboy Advance',
+    sourceDir: 'website pictures',
+    sourceFile: 'gameboy_advance.jpg',
+    destFile: 'console_gameboyadvance.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Gameboy Advance SP',
+    sourceDir: 'website pictures',
+    sourceFile: 'gameboy_advance_sp.jpg',
+    destFile: 'console_gameboyadvancesp.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Gameboy Color',
+    sourceDir: 'website pictures',
+    sourceFile: 'gameboy_color.jpg',
+    destFile: 'console_gameboycolor.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo 2DS',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_2ds.webp',
+    destFile: 'console_nintendo2ds.webp',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo 3DS',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_3ds.jpg',
+    destFile: 'console_nintendo3ds.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo 3DS XL',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_3ds_xl.jpg',
+    destFile: 'console_nintendo3dsxl.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo DS Lite',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_ds_lite.webp',
+    destFile: 'console_nintendodslite.webp',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo DSi',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_dsi.webp',
+    destFile: 'console_nintendodsi.webp',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo DSi XL',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_dsi_xl.webp',
+    destFile: 'console_nintendodsixl.webp',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo New 2DS XL',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_2ds_xl.jpg',
+    destFile: 'console_nintendonew2dsxl.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo New 3DS XL Black',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_new_3ds_xl_black.jpg',
+    destFile: 'console_nintendonew3dsxlblack.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Nintendo New 3DS XL Red',
+    sourceDir: 'website pictures',
+    sourceFile: 'nintendo_new_3ds_xl_red.jpg',
+    destFile: 'console_nintendonew3dsxlred.jpg',
+  },
+  {
+    category: 'Consoles',
+    itemName: 'Sony PS3 Slim',
+    sourceDir: 'website pictures',
+    sourceFile: 'sony_ps3_slim.jpg',
+    destFile: 'console_sonyps3slim.jpg',
   },
 
   // Controllers (from controllers/)
