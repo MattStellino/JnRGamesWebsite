@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(timeout 15 npm run dev:*)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 10 npx next build:*)",
+      "Bash(curl:*)",
+      "Bash(timeout /t 8 /nobreak)",
+      "Bash(if exist .next rmdir /s /q .next)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npx tsx:*)"
+    ]
+  }
+}

@@ -8,6 +8,9 @@ import {
   validateDescription 
 } from '@/lib/security'
 
+const MAX_SELL_LIST_ITEMS_IN_EMAIL = 60
+const MAX_FORMSPREE_MESSAGE_LENGTH = 7000
+
 export async function POST(request: NextRequest) {
   // Rate limiting
   const rateLimitResponse = rateLimit(request, '/api/contact')
@@ -64,8 +67,9 @@ export async function POST(request: NextRequest) {
     // Format sell list items for email
     let sellListText = ''
     if (sellListItems.length > 0) {
+      const limitedItems = sellListItems.slice(0, MAX_SELL_LIST_ITEMS_IN_EMAIL)
       sellListText = '\n\n--- SELL LIST ITEMS ---\n'
-      sellListItems.forEach((item: any, index: number) => {
+      limitedItems.forEach((item: any, index: number) => {
         const itemName = sanitizeInput(item.name || 'Unknown Item')
         const itemCategory = sanitizeInput(item.category || 'N/A')
         const itemConsole = item.consoleName ? sanitizeInput(item.consoleName) : null
@@ -82,8 +86,18 @@ export async function POST(request: NextRequest) {
         sellListText += `\n   Price: $${itemTotal.toFixed(2)}`
         sellListText += '\n'
       })
+
+      if (sellListItems.length > limitedItems.length) {
+        sellListText += `\n...and ${sellListItems.length - limitedItems.length} more item(s).\n`
+      }
+
       sellListText += `\n--- ESTIMATED TOTAL: $${sellListTotal.toFixed(2)} ---\n`
     }
+
+    const combinedMessage = `${message}${sellListText}`
+    const safeMessage = combinedMessage.length > MAX_FORMSPREE_MESSAGE_LENGTH
+      ? `${combinedMessage.slice(0, MAX_FORMSPREE_MESSAGE_LENGTH)}\n\n[Message truncated due to length]`
+      : combinedMessage
 
     // Forward to Formspree
     const formspreeEndpoint = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/mqagvyde'
@@ -100,17 +114,27 @@ export async function POST(request: NextRequest) {
           email,
           phone: phone || 'Not provided',
           subject,
-          message: message + sellListText,
-          sellListItemCount: sellListItems.length,
-          sellListTotal: sellListTotal > 0 ? `$${sellListTotal.toFixed(2)}` : 'N/A',
+          message: safeMessage,
+          _subject: `Sell Request - ${subject}`,
           _replyto: email, // Formspree will use this for the reply-to address
         }),
       })
 
-      const formspreeData = await formspreeResponse.json()
+      const formspreeRaw = await formspreeResponse.text()
+      let formspreeData: any = null
+      if (formspreeRaw) {
+        try {
+          formspreeData = JSON.parse(formspreeRaw)
+        } catch {
+          formspreeData = formspreeRaw
+        }
+      }
 
       if (!formspreeResponse.ok) {
-        console.error('Formspree error:', formspreeData)
+        console.error('Formspree error:', {
+          status: formspreeResponse.status,
+          data: formspreeData
+        })
         return NextResponse.json(
           { error: 'Failed to send message. Please try again later.' },
           { status: 500 }
@@ -137,5 +161,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
 

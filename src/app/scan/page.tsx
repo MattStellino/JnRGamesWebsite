@@ -39,16 +39,33 @@ export default function BarcodeScanner() {
     try {
       setError(null)
       setIsScanning(true)
-      
+
       if (!codeReaderRef.current) {
         setError('Barcode scanner not initialized')
         setIsScanning(false)
         return
       }
 
+      // Request camera with mobile-friendly constraints
+      const constraints = {
+        video: {
+          facingMode: 'environment', // Use rear camera on mobile
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      }
+
+      // Get camera stream first
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        streamRef.current = stream
+      }
+
       // Start continuous scanning
       await codeReaderRef.current.decodeFromVideoDevice(
-        null, // Use default camera
+        undefined, // Use default camera
         videoRef.current!,
         (result, error) => {
           if (result) {
@@ -61,6 +78,7 @@ export default function BarcodeScanner() {
         }
       )
     } catch (err) {
+      console.error('Camera access error:', err)
       setError('Unable to access camera. Please ensure camera permissions are granted.')
       setIsScanning(false)
     }
@@ -70,6 +88,13 @@ export default function BarcodeScanner() {
     if (codeReaderRef.current) {
       codeReaderRef.current.reset()
     }
+
+    // Stop all media tracks
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+
     setIsScanning(false)
     if (videoRef.current) {
       videoRef.current.srcObject = null
@@ -176,14 +201,16 @@ export default function BarcodeScanner() {
             {/* Camera View */}
             {isScanning && (
               <div className="text-center">
-                <div className="relative bg-black rounded-lg overflow-hidden mb-6">
+                <div className="relative bg-black rounded-lg overflow-hidden mb-6 aspect-video">
                   <video
                     ref={videoRef}
                     autoPlay
                     playsInline
-                    className="w-full h-64 object-cover"
+                    muted
+                    className="w-full h-full object-contain"
+                    style={{ minHeight: '300px' }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="border-2 border-white border-dashed w-48 h-32 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">Position barcode here</span>
                     </div>

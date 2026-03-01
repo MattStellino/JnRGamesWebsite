@@ -18,6 +18,7 @@ export async function GET(
     const itemId = parseInt(resolvedParams.id)
     const { searchParams } = new URL(request.url)
     const forceRefresh = searchParams.get('refresh') === 'true'
+    const debug = searchParams.get('debug') === '1'
 
     if (isNaN(itemId)) {
       return NextResponse.json({ error: 'Invalid item ID' }, { status: 400 })
@@ -46,7 +47,8 @@ export async function GET(
     }
 
     // Fetch the appropriate image
-    const imageUrl = await fetchItemImage(item)
+    const result = await fetchItemImage(item)
+    const imageUrl = result.imageUrl
 
     if (!imageUrl) {
       // If we're forcing refresh of a legacy RAWG game image and IGDB has no match,
@@ -62,7 +64,11 @@ export async function GET(
         })
       }
 
-      return NextResponse.json({ imageUrl: null, message: 'No image found' })
+      return NextResponse.json({
+        imageUrl: null,
+        message: 'No image found',
+        ...(debug ? { reason: result.reason || 'unknown' } : {}),
+      })
     }
 
     // Save the image URL to the database

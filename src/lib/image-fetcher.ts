@@ -18,6 +18,18 @@ interface ItemForImage {
   } | null
 }
 
+export type FetchImageResult = {
+  imageUrl: string | null
+  reason?:
+    | 'igdb-unavailable'
+    | 'no-results'
+    | 'error'
+    | 'no-console-image'
+    | 'no-controller-image'
+    | 'no-accessory-image'
+    | 'not-game'
+}
+
 function normalizeGameTitle(title: string) {
   return title
     .toLowerCase()
@@ -29,7 +41,7 @@ function normalizeGameTitle(title: string) {
 }
 
 // Fetch the best matching image for an item
-export async function fetchItemImage(item: ItemForImage): Promise<string | null> {
+export async function fetchItemImage(item: ItemForImage): Promise<FetchImageResult> {
   const categoryName = item.category.name
   const consoleName = item.console?.name
 
@@ -40,29 +52,35 @@ export async function fetchItemImage(item: ItemForImage): Promise<string | null>
 
   // For consoles, use a console image lookup
   if (categoryName === 'Consoles') {
-    return getConsoleImage(item.name, consoleName)
+    const imageUrl = getConsoleImage(item.name, consoleName)
+    return { imageUrl, reason: imageUrl ? undefined : 'no-console-image' }
   }
 
   // For controllers, use controller image lookup
   if (categoryName === 'Controllers') {
-    return getControllerImage(item.name, consoleName)
+    const imageUrl = getControllerImage(item.name, consoleName)
+    return { imageUrl, reason: imageUrl ? undefined : 'no-controller-image' }
   }
 
   // For accessories, try to find a generic image
   if (categoryName === 'Accessories') {
-    return getAccessoryImage(item.name, consoleName)
+    const imageUrl = getAccessoryImage(item.name, consoleName)
+    return { imageUrl, reason: imageUrl ? undefined : 'no-accessory-image' }
   }
 
-  return null
+  return { imageUrl: null, reason: 'not-game' }
 }
 
 // Fetch game cover art from IGDB
-async function fetchGameImage(gameName: string, consoleName?: string | null): Promise<string | null> {
+async function fetchGameImage(gameName: string, consoleName?: string | null): Promise<FetchImageResult> {
   try {
     const results = await searchGames(gameName, consoleName || undefined, 1, 5)
 
     if (!results || results.length === 0) {
-      return null
+      return {
+        imageUrl: null,
+        reason: results === null ? 'igdb-unavailable' : 'no-results',
+      }
     }
 
     // Find the best match - prefer normalized exact name match
@@ -73,15 +91,16 @@ async function fetchGameImage(gameName: string, consoleName?: string | null): Pr
 
     const exactCover = getCoverImageUrl(exactMatch?.cover?.image_id)
     if (exactCover) {
-      return exactCover
+      return { imageUrl: exactCover }
     }
 
     // Otherwise return the first result with an image
     const withImage = results.find(game => game.cover?.image_id)
-    return getCoverImageUrl(withImage?.cover?.image_id)
+    const imageUrl = getCoverImageUrl(withImage?.cover?.image_id)
+    return { imageUrl, reason: imageUrl ? undefined : 'no-results' }
   } catch (error) {
     console.error('Error fetching game image:', error)
-    return null
+    return { imageUrl: null, reason: 'error' }
   }
 }
 
