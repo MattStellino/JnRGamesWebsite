@@ -2,6 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
+import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 import JRGamesLogo from '@/components/JRGamesLogo'
 import Toaster from '@/components/Toaster'
@@ -186,6 +187,7 @@ export default function RootLayout({
           <Footer />
           <Toaster />
           <KeyboardAdminAccess />
+          <Analytics />
           </SellListProvider>
         </SessionProvider>
       </body>
