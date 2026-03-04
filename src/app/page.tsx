@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import JRGamesLogo from '@/components/JRGamesLogo'
 import StructuredData from '@/components/StructuredData'
-import { Gamepad2, DollarSign, Clock, Shield, Star, Users } from 'lucide-react'
+import { Gamepad2, DollarSign, Clock, Shield, Star, Users, Phone } from 'lucide-react'
 
 export default function Home() {
   return (
@@ -37,15 +37,23 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 animate-fade-in-up animation-delay-400">
               <Link
                 href="/items"
-                className="bg-green-600 text-white px-8 py-4 rounded-xl hover:bg-green-700 transition-all duration-300 transform hover:scale-105 text-lg font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-300 animate-bounce-in animation-delay-600"
+                className="bg-green-600 text-white px-6 py-4 rounded-xl hover:bg-green-700 transition-all duration-300 transform hover:scale-105 text-lg font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-green-300 animate-bounce-in animation-delay-600"
                 aria-label="View our current buy prices for gaming items"
               >
                 <DollarSign className="inline h-5 w-5 mr-2 animate-spin-slow" aria-hidden="true" />
                 See what we pay
               </Link>
+              <a
+                href="tel:+14166772382"
+                className="bg-blue-600 text-white px-6 py-4 rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 text-lg font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300 animate-bounce-in animation-delay-700"
+                aria-label="Call J&R Games now at 416-677-2382"
+              >
+                <Phone className="inline h-5 w-5 mr-2" aria-hidden="true" />
+                Call Now
+              </a>
               <Link
                 href="/contact"
-                className="bg-red-600 text-white px-8 py-4 rounded-xl hover:bg-red-700 transition-all duration-300 transform hover:scale-105 text-lg font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-red-300 animate-bounce-in animation-delay-800"
+                className="bg-red-600 text-white px-6 py-4 rounded-xl hover:bg-red-700 transition-all duration-300 transform hover:scale-105 text-lg font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-red-300 animate-bounce-in animation-delay-800"
                 aria-label="Contact us to sell your gaming items"
               >
                 <Gamepad2 className="inline h-5 w-5 mr-2 animate-wiggle" aria-hidden="true" />
@@ -128,17 +136,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* What We Buy Section */}
+      {/* Top Seller List Section */}
       <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-20" aria-labelledby="what-we-buy-heading">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 id="what-we-buy-heading" className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              What We Buy
+              Top Seller List
             </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              We Purchase All Video Games, Gaming Consoles, & Accessories
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <article className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2">
+            <Link
+              href="/items?category=consoles"
+              className="group block bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              aria-label="View console prices in our Top Seller List"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="bg-green-100 rounded-xl p-3 mr-4">
@@ -146,18 +161,17 @@ export default function Home() {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Gaming Consoles</h3>
                 </div>
-                <Link
-                  href="/items?category=consoles"
-                  className="inline-flex items-center text-green-600 hover:text-green-800 font-semibold group focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-lg px-4 py-2 hover:bg-green-50 transition-all duration-200"
-                  aria-label="View console prices and what we buy"
-                >
+                <span className="inline-flex items-center text-green-600 group-hover:text-green-800 font-semibold rounded-lg px-4 py-2 group-hover:bg-green-50 transition-all duration-200">
                   View Prices 
-                  <span className="ml-1 group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
-                </Link>
+                  <span className="ml-1 group-hover:translate-x-1 transition-transform" aria-hidden="true">{'→'}</span>
+                </span>
               </div>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+            </Link>
+            <Link
+              href="/items?category=games"
+              className="group block bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label="Browse all gaming items we buy"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="bg-blue-100 rounded-xl p-3 mr-4">
@@ -165,16 +179,12 @@ export default function Home() {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Games & More</h3>
                 </div>
-                <Link
-                  href="/items?category=games"
-                  className="inline-flex items-center text-green-600 hover:text-green-800 font-semibold group focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-lg px-4 py-2 hover:bg-green-50 transition-all duration-200"
-                  aria-label="Browse all gaming items we buy"
-                >
+                <span className="inline-flex items-center text-green-600 group-hover:text-green-800 font-semibold rounded-lg px-4 py-2 group-hover:bg-green-50 transition-all duration-200">
                   Browse All 
-                  <span className="ml-1 group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
-                </Link>
+                  <span className="ml-1 group-hover:translate-x-1 transition-transform" aria-hidden="true">{'→'}</span>
+                </span>
               </div>
-            </article>
+            </Link>
           </div>
           
           <div className="text-center mt-8">
@@ -195,3 +205,4 @@ export default function Home() {
     </>
   )
 }
+
