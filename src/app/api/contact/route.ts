@@ -13,6 +13,7 @@ const MAX_FORMSPREE_MESSAGE_LENGTH = 7000
 const MAX_SELL_LIST_PREVIEW_ITEMS = 12
 const MAX_UPLOAD_IMAGES = 10
 const MAX_UPLOAD_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+const MAX_UPLOAD_TOTAL_BYTES = 15 * 1024 * 1024
 
 const ALLOWED_IMAGE_MIME_TYPES = new Set([
   'image/jpeg',
@@ -92,6 +93,55 @@ function hasValidImageSignature(fileBytes: Uint8Array): boolean {
     fileBytes[11] === 0x50
   )
   return isWebp
+}
+
+function createFormspreePayload(params: {
+  name: string
+  email: string
+  phone: string
+  subject: string
+  message: string
+  uploadedFiles: File[]
+  uploadFieldName: string
+}): FormData {
+  const payload = new FormData()
+  payload.append('name', params.name)
+  payload.append('email', params.email)
+  payload.append('phone', params.phone)
+  payload.append('subject', params.subject)
+  payload.append('message', params.message)
+  payload.append('_subject', `Sell Request - ${params.subject}`)
+  payload.append('_replyto', params.email)
+
+  for (const file of params.uploadedFiles) {
+    payload.append(params.uploadFieldName, file, sanitizeFileName(file.name))
+  }
+
+  return payload
+}
+
+function createFormBackendPayload(params: {
+  name: string
+  email: string
+  phone: string
+  subject: string
+  message: string
+  uploadedFiles: File[]
+}): FormData {
+  const payload = new FormData()
+  payload.append('name', params.name)
+  payload.append('email', params.email)
+  payload.append('phone', params.phone)
+  payload.append('subject', params.subject)
+  payload.append('message', params.message)
+
+  // FormBackend supports file uploads via regular file fields.
+  // Use the documented multiple-file naming convention.
+  for (const file of params.uploadedFiles) {
+    payload.append('my_files[]', file, sanitizeFileName(file.name))
+  }
+
+  return payload
 }
 
 async function validateImageFile(file: File): Promise<string | null> {
@@ -217,6 +267,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const totalUploadBytes = uploadedFiles.reduce((sum, file) => sum + file.size, 0)
+    if (totalUploadBytes > MAX_UPLOAD_TOTAL_BYTES) {
+      return NextResponse.json(
+        { error: 'Total image upload size exceeds 15MB.' },
+        { status: 400 }
+      )
+    }
+
     // Normalize and format sell list items for email
     const normalizedSellListItems: SellListEmailItem[] = sellListItems
       .slice(0, MAX_SELL_LIST_ITEMS_IN_EMAIL)
@@ -282,72 +340,120 @@ export async function POST(request: NextRequest) {
         sell_list_message_length: sellListMessageText.length,
         final_message_length: safeMessage.length,
         uploaded_file_count: uploadedFiles.length,
-        uploaded_file_bytes: uploadedFiles.reduce((sum, file) => sum + file.size, 0),
+        uploaded_file_bytes: totalUploadBytes,
       })
     }
 
-    // Forward to Formspree
-    const formspreeEndpoint = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/mqagvyde'
+    // Forward to form provider (FormBackend preferred when configured)
+    const formProviderEndpoint =
+      process.env.FORM_BACKEND_ENDPOINT ||
+      process.env.FORMSPREE_ENDPOINT ||
+      'https://formspree.io/f/mqagvyde'
+    const isFormBackend = formProviderEndpoint.includes('formbackend.com')
 
     try {
-      const formspreePayload = new FormData()
-      formspreePayload.append('name', name)
-      formspreePayload.append('email', email)
-      formspreePayload.append('phone', phone || 'Not provided')
-      formspreePayload.append('subject', subject)
-      formspreePayload.append('message', safeMessage)
-      formspreePayload.append('_subject', `Sell Request - ${subject}`)
-      formspreePayload.append('_replyto', email)
+      let providerResponse: Response | null = null
+      let attemptedField: string | null = null
 
-      for (const file of uploadedFiles) {
-        formspreePayload.append('photos', file, sanitizeFileName(file.name))
-      }
-
-      if (debugEnabled) {
-        console.log('[ContactAPI] Forwarding to Formspree', {
-          request_id: requestId,
-          endpoint: formspreeEndpoint,
-          payload_mode: 'multipart/form-data',
-          file_count: uploadedFiles.length,
+      if (isFormBackend) {
+        const formBackendPayload = createFormBackendPayload({
+          name,
+          email,
+          phone: phone || 'Not provided',
+          subject,
+          message: safeMessage,
+          uploadedFiles,
         })
-      }
 
-      const formspreeResponse = await fetch(formspreeEndpoint, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-        },
-        body: formspreePayload,
-      })
+        providerResponse = await fetch(formProviderEndpoint, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+          },
+          body: formBackendPayload,
+        })
+      } else {
+        const preferredUploadField = sanitizeInput(process.env.FORMSPREE_UPLOAD_FIELD || 'attachment') || 'attachment'
+        const uploadFieldCandidates = uploadedFiles.length > 0
+          ? Array.from(new Set([preferredUploadField, 'attachment', 'file', 'photos']))
+          : ['attachment']
 
-      const formspreeRaw = await formspreeResponse.text()
-      let formspreeData: any = null
-      if (formspreeRaw) {
-        try {
-          formspreeData = JSON.parse(formspreeRaw)
-        } catch {
-          formspreeData = formspreeRaw
+        for (const uploadFieldName of uploadFieldCandidates) {
+          const formspreePayload = createFormspreePayload({
+            name,
+            email,
+            phone: phone || 'Not provided',
+            subject,
+            message: safeMessage,
+            uploadedFiles,
+            uploadFieldName,
+          })
+
+          providerResponse = await fetch(formProviderEndpoint, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+            },
+            body: formspreePayload,
+          })
+
+          attemptedField = uploadFieldName
+          if (providerResponse.ok) break
         }
       }
 
       if (debugEnabled) {
-        console.log('[ContactAPI] Formspree response', {
+        console.log('[ContactAPI] Forwarding to provider', {
           request_id: requestId,
-          status: formspreeResponse.status,
-          ok: formspreeResponse.ok,
-          response_type: typeof formspreeData,
+          endpoint: formProviderEndpoint,
+          provider: isFormBackend ? 'formbackend' : 'formspree',
+          payload_mode: 'multipart/form-data',
+          file_count: uploadedFiles.length,
+          attempted_upload_field: attemptedField,
         })
       }
 
-      if (!formspreeResponse.ok) {
-        console.error('Formspree error:', {
-          request_id: requestId,
-          status: formspreeResponse.status,
-          data: formspreeData
-        })
+      if (!providerResponse) {
         return NextResponse.json(
           { error: 'Failed to send message. Please try again later.' },
           { status: 500 }
+        )
+      }
+
+      const providerRaw = await providerResponse.text()
+      let providerData: any = null
+      if (providerRaw) {
+        try {
+          providerData = JSON.parse(providerRaw)
+        } catch {
+          providerData = providerRaw
+        }
+      }
+
+      if (debugEnabled) {
+        console.log('[ContactAPI] Provider response', {
+          request_id: requestId,
+          status: providerResponse.status,
+          ok: providerResponse.ok,
+          response_type: typeof providerData,
+        })
+      }
+
+      if (!providerResponse.ok) {
+        const upstreamErrorMessage = typeof providerData === 'object' && providerData?.errors
+          ? JSON.stringify(providerData.errors)
+          : 'Form provider rejected the submission.'
+
+        console.error('Provider error:', {
+          request_id: requestId,
+          status: providerResponse.status,
+          provider: isFormBackend ? 'formbackend' : 'formspree',
+          attempted_field: attemptedField,
+          data: providerData,
+        })
+        return NextResponse.json(
+          { error: `Failed to send message (${providerResponse.status}). ${upstreamErrorMessage}` },
+          { status: 502 }
         )
       }
 
