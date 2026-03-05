@@ -19,13 +19,32 @@ interface ItemDetailSellButtonProps {
       }
     } | null
   }
+  conditionLabel: string
+  conditionPrice: number
+  variant?: 'icon' | 'button' | 'inline'
+  className?: string
 }
 
-export default function ItemDetailSellButton({ item }: ItemDetailSellButtonProps) {
+function toConditionKey(conditionLabel: string) {
+  return conditionLabel
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || 'standard'
+}
+
+export default function ItemDetailSellButton({
+  item,
+  conditionLabel,
+  conditionPrice,
+  variant = 'inline',
+  className = '',
+}: ItemDetailSellButtonProps) {
   const sellListItem: Omit<SellListItem, 'quantity'> = {
     id: Number(item.id),
     name: item.name,
-    price: Number(item.price) || 0,
+    sellListKey: `${Number(item.id)}:${toConditionKey(conditionLabel)}`,
+    conditionLabel,
+    price: Number(conditionPrice) || 0,
     category: item.category.name,
     consoleName: item.console?.name,
     consoleType: item.console?.consoleType?.name,
@@ -33,6 +52,11 @@ export default function ItemDetailSellButton({ item }: ItemDetailSellButtonProps
   }
 
   return (
-    <AddToSellListButton item={sellListItem} variant="button" />
+    <AddToSellListButton
+      item={sellListItem}
+      variant={variant}
+      label={`Add ${conditionLabel}`}
+      className={className}
+    />
   )
 }

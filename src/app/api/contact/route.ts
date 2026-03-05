@@ -14,6 +14,7 @@ const MAX_SELL_LIST_PREVIEW_ITEMS = 12
 
 interface SellListEmailItem {
   name: string
+  conditionLabel: string | null
   category: string
   consoleName: string | null
   price: number
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
       .slice(0, MAX_SELL_LIST_ITEMS_IN_EMAIL)
       .map((item: any) => {
         const itemName = sanitizeInput(item.name || 'Unknown Item')
+        const itemConditionLabel = item.conditionLabel ? sanitizeInput(item.conditionLabel) : null
         const itemCategory = sanitizeInput(item.category || 'N/A')
         const itemConsole = item.consoleName ? sanitizeInput(item.consoleName) : null
         const itemPrice = Number(item.price) || 0
@@ -88,6 +90,7 @@ export async function POST(request: NextRequest) {
 
         return {
           name: itemName,
+          conditionLabel: itemConditionLabel,
           category: itemCategory,
           consoleName: itemConsole,
           price: itemPrice,
@@ -106,7 +109,8 @@ export async function POST(request: NextRequest) {
       sellListMessageText += '\n\nItems included in this email:'
       previewItems.forEach((item, index) => {
         const consolePart = item.consoleName ? ` | Console: ${item.consoleName}` : ''
-        sellListMessageText += `\n${index + 1}. ${item.name}${consolePart} | Category: ${item.category} | Qty: ${item.quantity} | Est: $${item.total.toFixed(2)}`
+        const conditionPart = item.conditionLabel ? ` | Condition: ${item.conditionLabel}` : ''
+        sellListMessageText += `\n${index + 1}. ${item.name}${consolePart}${conditionPart} | Category: ${item.category} | Qty: ${item.quantity} | Est: $${item.total.toFixed(2)}`
       })
       if (normalizedSellListItems.length > previewItems.length) {
         sellListMessageText += `\n...and ${normalizedSellListItems.length - previewItems.length} more item(s).`

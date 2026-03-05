@@ -59,7 +59,7 @@ export default function MobileSellList({ onNavigate }: MobileSellListProps) {
               <div className="space-y-2 max-h-60 overflow-y-auto mb-3">
                 {items.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.sellListKey || item.id}
                     className="bg-gray-50 rounded-lg p-3"
                   >
                     <div className="flex items-center justify-between">
@@ -71,10 +71,17 @@ export default function MobileSellList({ onNavigate }: MobileSellListProps) {
                         >
                           {item.name} {item.quantity > 1 && <span className="text-gray-500">({item.quantity})</span>}
                         </Link>
-                        <p className="text-xs text-gray-500">{item.category}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-xs text-gray-500">{item.category}</p>
+                          {item.conditionLabel && (
+                            <span className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded">
+                              {item.conditionLabel}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.sellListKey || item.id)}
                         className="p-1 text-gray-400 hover:text-red-600 rounded"
                         aria-label={`Remove ${item.name}`}
                       >
@@ -85,7 +92,7 @@ export default function MobileSellList({ onNavigate }: MobileSellListProps) {
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => decrementItem(item.id)}
+                          onClick={() => decrementItem(item.sellListKey || item.id)}
                           className="p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                           aria-label={`Decrease quantity of ${item.name}`}
                         >
@@ -97,7 +104,17 @@ export default function MobileSellList({ onNavigate }: MobileSellListProps) {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => addItem({ id: item.id, name: item.name, price: item.price, category: item.category, consoleName: item.consoleName, consoleType: item.consoleType, imageUrl: item.imageUrl })}
+                          onClick={() => addItem({
+                            id: item.id,
+                            sellListKey: item.sellListKey,
+                            conditionLabel: item.conditionLabel,
+                            name: item.name,
+                            price: item.price,
+                            category: item.category,
+                            consoleName: item.consoleName,
+                            consoleType: item.consoleType,
+                            imageUrl: item.imageUrl
+                          })}
                           className="p-1 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
                           aria-label={`Increase quantity of ${item.name}`}
                         >

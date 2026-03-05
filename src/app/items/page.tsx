@@ -201,7 +201,7 @@ export default async function ItemsPage({
           <div className="max-w-7xl mx-auto px-4 py-16">
             <div className="text-center mb-12">
               <h1 id="items-heading" className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                What We <span className="text-green-600">Buy</span>
+                Top <span className="text-green-600">Seller List</span>
               </h1>
             </div>
 

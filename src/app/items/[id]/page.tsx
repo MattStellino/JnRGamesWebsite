@@ -57,7 +57,7 @@ export default async function ItemDetailsPage({
             {/* Back Button */}
             <div className="mb-6">
               <BackButton fallbackHref="/items">
-                Back to What We Buy
+                Back to Top Seller List
               </BackButton>
             </div>
 
@@ -95,51 +95,81 @@ export default async function ItemDetailsPage({
                 </div>
 
                 {/* Price */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                <div className="bg-gradient-to-br from-emerald-50 via-white to-emerald-100/40 border border-emerald-200/70 rounded-2xl p-4 sm:p-6 shadow-sm">
                   <div className="flex items-center mb-4">
                     <DollarSign className="h-6 w-6 text-green-600 mr-2" />
-                    <h2 className="text-2xl font-bold text-green-600">We Pay</h2>
+                    <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">We Pay</h2>
                   </div>
                   
                   {/* Dynamic Pricing Based on Item Category */}
                   {item.category.name === 'Consoles' ? (
                     // Console pricing tiers (Complete Console, Console with Controller, Console Only)
                     <div className="space-y-4">
-                      <div className="bg-white rounded-lg p-4 border border-green-200">
-                        <div className="flex justify-between items-center">
+                      <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div>
                             <h3 className="font-semibold text-gray-900">Complete Console</h3>
                             <p className="text-sm text-gray-600">Console with all accessories, controllers, and original packaging</p>
                           </div>
-                          <div className="text-2xl font-bold text-green-600">
-                            ${(item.completeConsolePrice || item.price).toFixed(2)}
+                          <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                            <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                              ${(item.completeConsolePrice || item.price).toFixed(2)}
+                            </div>
+                            <div className="flex shrink-0">
+                              <ItemDetailSellButton
+                                item={item}
+                                conditionLabel="Complete Console"
+                                conditionPrice={item.completeConsolePrice || item.price}
+                                
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                       
                       {item.consoleWithController && (
-                        <div className="bg-white rounded-lg p-4 border border-green-200">
-                          <div className="flex justify-between items-center">
+                        <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                               <h3 className="font-semibold text-gray-900">Console with Controller</h3>
                               <p className="text-sm text-gray-600">Console with controller and essential cables</p>
                             </div>
-                            <div className="text-2xl font-bold text-green-600">
-                              ${item.consoleWithController.toFixed(2)}
+                            <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                              <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                ${item.consoleWithController.toFixed(2)}
+                              </div>
+                              <div className="flex shrink-0">
+                                <ItemDetailSellButton
+                                  item={item}
+                                  conditionLabel="Console with Controller"
+                                  conditionPrice={item.consoleWithController}
+                                  
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
                       )}
                       
                       {item.consoleOnlyPrice && (
-                        <div className="bg-white rounded-lg p-4 border border-green-200">
-                          <div className="flex justify-between items-center">
+                        <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                               <h3 className="font-semibold text-gray-900">Console Only</h3>
                               <p className="text-sm text-gray-600">Just the console unit</p>
                             </div>
-                            <div className="text-2xl font-bold text-green-600">
-                              ${item.consoleOnlyPrice.toFixed(2)}
+                            <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                              <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                ${item.consoleOnlyPrice.toFixed(2)}
+                              </div>
+                              <div className="flex shrink-0">
+                                <ItemDetailSellButton
+                                  item={item}
+                                  conditionLabel="Console Only"
+                                  conditionPrice={item.consoleOnlyPrice}
+                                  
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -169,41 +199,71 @@ export default async function ItemDetailsPage({
                     <div className="space-y-4">
                       {['NES', 'SNES', 'Nintendo 64'].includes(item.console?.name || '') ? (
                         // Classic Nintendo systems - Game Only only
-                        <div className="bg-white rounded-lg p-4 border border-green-200">
-                          <div className="flex justify-between items-center">
+                        <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                               <h3 className="font-semibold text-gray-900">Game Only</h3>
                               <p className="text-sm text-gray-600">Just the game cartridge</p>
                             </div>
-                            <div className="text-2xl font-bold text-green-600">
-                              ${item.price.toFixed(2)}
+                            <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                              <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                ${item.price.toFixed(2)}
+                              </div>
+                              <div className="flex shrink-0">
+                                <ItemDetailSellButton
+                                  item={item}
+                                  conditionLabel="Game Only"
+                                  conditionPrice={item.price}
+                                  
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
                       ) : item.console?.name === 'Nintendo Switch' ? (
                         // Switch games - Case and Game, Game Only
                         <>
-                          <div className="bg-white rounded-lg p-4 border border-green-200">
-                            <div className="flex justify-between items-center">
+                          <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                               <div>
                                 <h3 className="font-semibold text-gray-900">Case and Game</h3>
                                 <p className="text-sm text-gray-600">Game with original case but no manual or inserts</p>
                               </div>
-                              <div className="text-2xl font-bold text-green-600">
-                                ${item.price.toFixed(2)}
+                              <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                                <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                  ${item.price.toFixed(2)}
+                                </div>
+                                <div className="flex shrink-0">
+                                  <ItemDetailSellButton
+                                    item={item}
+                                    conditionLabel="Case and Game"
+                                    conditionPrice={item.price}
+                                    
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
                           
                           {item.goodPrice && (
-                            <div className="bg-white rounded-lg p-4 border border-green-200">
-                              <div className="flex justify-between items-center">
+                            <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div>
                                   <h3 className="font-semibold text-gray-900">Game Only</h3>
                                   <p className="text-sm text-gray-600">Just the game cartridge</p>
                                 </div>
-                                <div className="text-2xl font-bold text-green-600">
-                                  ${item.goodPrice.toFixed(2)}
+                                <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                                  <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                    ${item.goodPrice.toFixed(2)}
+                                  </div>
+                                  <div className="flex shrink-0">
+                                    <ItemDetailSellButton
+                                      item={item}
+                                      conditionLabel="Game Only"
+                                      conditionPrice={item.goodPrice}
+                                      
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -212,41 +272,71 @@ export default async function ItemDetailsPage({
                       ) : (
                         // Modern systems - Complete in Box, Box and Game, Disc Only
                         <>
-                          <div className="bg-white rounded-lg p-4 border border-green-200">
-                            <div className="flex justify-between items-center">
+                          <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                               <div>
                                 <h3 className="font-semibold text-gray-900">Complete in Box</h3>
                                 <p className="text-sm text-gray-600">Game with original box, manual, and all inserts</p>
                               </div>
-                              <div className="text-2xl font-bold text-green-600">
-                                ${item.price.toFixed(2)}
+                              <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                                <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                  ${item.price.toFixed(2)}
+                                </div>
+                                <div className="flex shrink-0">
+                                  <ItemDetailSellButton
+                                    item={item}
+                                    conditionLabel="Complete in Box"
+                                    conditionPrice={item.price}
+                                    
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
                           
                           {item.goodPrice && (
-                            <div className="bg-white rounded-lg p-4 border border-green-200">
-                              <div className="flex justify-between items-center">
+                            <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div>
                                   <h3 className="font-semibold text-gray-900">Box and Game</h3>
                                   <p className="text-sm text-gray-600">Game with original box but no manual or inserts</p>
                                 </div>
-                                <div className="text-2xl font-bold text-green-600">
-                                  ${item.goodPrice.toFixed(2)}
+                                <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                                  <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                    ${item.goodPrice.toFixed(2)}
+                                  </div>
+                                  <div className="flex shrink-0">
+                                    <ItemDetailSellButton
+                                      item={item}
+                                      conditionLabel="Box and Game"
+                                      conditionPrice={item.goodPrice}
+                                      
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           )}
                           
                           {item.acceptablePrice && (
-                            <div className="bg-white rounded-lg p-4 border border-green-200">
-                              <div className="flex justify-between items-center">
+                            <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div>
                                   <h3 className="font-semibold text-gray-900">Disc Only</h3>
                                   <p className="text-sm text-gray-600">Just the game disc/cartridge</p>
                                 </div>
-                                <div className="text-2xl font-bold text-green-600">
-                                  ${item.acceptablePrice.toFixed(2)}
+                                <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                                  <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                    ${item.acceptablePrice.toFixed(2)}
+                                  </div>
+                                  <div className="flex shrink-0">
+                                    <ItemDetailSellButton
+                                      item={item}
+                                      conditionLabel="Disc Only"
+                                      conditionPrice={item.acceptablePrice}
+                                      
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -257,27 +347,47 @@ export default async function ItemDetailsPage({
                   ) : ['Controllers', 'Accessories'].includes(item.category.name) ? (
                     // Controller/Accessory pricing tiers (Good Condition, Acceptable Condition)
                     <div className="space-y-4">
-                      <div className="bg-white rounded-lg p-4 border border-green-200">
-                        <div className="flex justify-between items-center">
+                      <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div>
                             <h3 className="font-semibold text-gray-900">Good Condition</h3>
                             <p className="text-sm text-gray-600">Excellent working condition with minimal wear</p>
                           </div>
-                          <div className="text-2xl font-bold text-green-600">
-                            ${item.price.toFixed(2)}
+                          <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                            <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                              ${item.price.toFixed(2)}
+                            </div>
+                            <div className="flex shrink-0">
+                              <ItemDetailSellButton
+                                item={item}
+                                conditionLabel="Good Condition"
+                                conditionPrice={item.price}
+                                
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                       
                       {item.acceptablePrice && (
-                        <div className="bg-white rounded-lg p-4 border border-green-200">
-                          <div className="flex justify-between items-center">
+                        <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                               <h3 className="font-semibold text-gray-900">Acceptable Condition</h3>
                               <p className="text-sm text-gray-600">Working condition with some wear</p>
                             </div>
-                            <div className="text-2xl font-bold text-green-600">
-                              ${item.acceptablePrice.toFixed(2)}
+                            <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                              <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                                ${item.acceptablePrice.toFixed(2)}
+                              </div>
+                              <div className="flex shrink-0">
+                                <ItemDetailSellButton
+                                  item={item}
+                                  conditionLabel="Acceptable Condition"
+                                  conditionPrice={item.acceptablePrice}
+                                  
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -285,13 +395,27 @@ export default async function ItemDetailsPage({
                     </div>
                   ) : (
                     // Single price display for other categories
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-green-600 mb-2">
-                        ${item.price.toFixed(2)}
+                    <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-gray-900">Standard</h3>
+                          <p className="text-sm text-gray-600">
+                            This is our current buy price for this item
+                          </p>
+                        </div>
+                        <div className="w-full sm:w-[200px] grid grid-cols-[1fr_auto] items-center gap-3">
+                          <div className="text-left tabular-nums text-xl sm:text-2xl font-extrabold tracking-tight text-green-600">
+                            ${item.price.toFixed(2)}
+                          </div>
+                          <div className="flex shrink-0">
+                            <ItemDetailSellButton
+                              item={item}
+                              conditionLabel="Standard"
+                              conditionPrice={item.price}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-green-700 text-sm">
-                        This is our current buy price for this item
-                      </p>
                     </div>
                   )}
                   
@@ -307,9 +431,6 @@ export default async function ItemDetailsPage({
                         Not sure what good condition looks like? Check our guide →
                       </Link>
                     </p>
-                    <div className="flex justify-center">
-                      <ItemDetailSellButton item={item} />
-                    </div>
                   </div>
                 </div>
 
@@ -428,3 +549,11 @@ export async function generateMetadata({
     }
   }
 }
+
+
+
+
+
+
+
+

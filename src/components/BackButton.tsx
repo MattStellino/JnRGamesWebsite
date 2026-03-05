@@ -12,7 +12,7 @@ interface BackButtonProps {
 export default function BackButton({
   fallbackHref = '/items',
   className = '',
-  children = 'Back to What We Buy'
+  children = 'Back to Top Seller List'
 }: BackButtonProps) {
   const router = useRouter()
 

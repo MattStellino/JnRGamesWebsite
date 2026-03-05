@@ -153,7 +153,7 @@ export default function BarcodeScanner() {
             className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to What We Buy
+            Back to Top Seller List
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Scan Barcode

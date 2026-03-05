@@ -143,7 +143,7 @@ export default function RootLayout({
                     className="relative text-gray-700 hover:text-green-600 font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-xl px-6 py-3 group"
                     aria-label="View items we buy"
                   >
-                    <span className="relative z-10">What We Buy</span>
+                    <span className="relative z-10">Top Seller List</span>
                     <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-green-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-green-600 group-hover:w-8 transition-all duration-300"></div>
                   </Link>

@@ -1,8 +1,9 @@
 'use client'
 
+import type { KeyboardEvent } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Item } from '@/types'
-import AddToSellListButton from './AddToSellListButton'
 
 interface ItemCardProps {
   item: Item & {
@@ -22,20 +23,27 @@ interface ItemCardProps {
 }
 
 export default function ItemCard({ item }: ItemCardProps) {
-  const sellListItem = {
-    id: Number(item.id),
-    name: item.name,
-    price: Number(item.price) || 0,
-    category: item.category.name,
-    consoleName: item.console?.name,
-    consoleType: item.console?.consoleType?.name,
-    imageUrl: item.imageUrl,
+  const router = useRouter()
+  const itemHref = `/items/${item.id}`
+
+  const openItem = () => {
+    router.push(itemHref)
+  }
+
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      openItem()
+    }
   }
 
   return (
     <article
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2 flex flex-col h-full relative group"
-      role="article"
+      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow focus-within:ring-2 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex flex-col h-full relative group cursor-pointer"
+      role="link"
+      tabIndex={0}
+      onClick={openItem}
+      onKeyDown={handleCardKeyDown}
       aria-labelledby={`item-title-${item.id}`}
     >
       <div className="p-4 flex flex-col flex-grow">
@@ -78,16 +86,14 @@ export default function ItemCard({ item }: ItemCardProps) {
           >
             ${item.price.toFixed(2)}
           </span>
-          <div className="flex items-center gap-2">
-            <AddToSellListButton item={sellListItem} variant="inline" />
-            <Link
-              href={`/items/${item.id}`}
-              className="text-green-600 hover:text-green-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-lg px-3 py-1 hover:bg-green-50 transition-all duration-200 flex-shrink-0"
-              aria-label={`View details and price for ${item.name}`}
-            >
-              See Price →
-            </Link>
-          </div>
+          <Link
+            href={itemHref}
+            onClick={(event) => event.stopPropagation()}
+            className="text-green-600 hover:text-green-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-lg px-3 py-1 hover:bg-green-50 transition-all duration-200 flex-shrink-0"
+            aria-label={`View details and price for ${item.name}`}
+          >
+            See Price {'->'}
+          </Link>
         </div>
       </div>
     </article>

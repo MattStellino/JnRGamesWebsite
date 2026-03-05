@@ -43,7 +43,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link href="/items" className="text-gray-300 hover:text-white transition-colors">
-                  What We Buy
+                  Top Seller List
                 </Link>
               </li>
               <li>

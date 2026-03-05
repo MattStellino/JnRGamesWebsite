@@ -72,7 +72,7 @@ export default function SellList() {
               <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 mb-2">Your sell list is empty</p>
               <p className="text-gray-400 text-sm">
-                Add items you want to sell by clicking the + button
+                Add items from the price options on each item page
               </p>
             </div>
           ) : (
@@ -80,7 +80,7 @@ export default function SellList() {
               <div className="max-h-80 overflow-y-auto">
                 {items.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.sellListKey || item.id}
                     className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -101,13 +101,18 @@ export default function SellList() {
                               {item.consoleName}
                             </span>
                           )}
+                          {item.conditionLabel && (
+                            <span className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded">
+                              {item.conditionLabel}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {/* Quantity Controls */}
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => decrementItem(item.id)}
+                            onClick={() => decrementItem(item.sellListKey || item.id)}
                             className="p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                             aria-label={`Decrease quantity of ${item.name}`}
                           >
@@ -119,7 +124,17 @@ export default function SellList() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => addItem({ id: item.id, name: item.name, price: item.price, category: item.category, consoleName: item.consoleName, consoleType: item.consoleType, imageUrl: item.imageUrl })}
+                            onClick={() => addItem({
+                              id: item.id,
+                              sellListKey: item.sellListKey,
+                              conditionLabel: item.conditionLabel,
+                              name: item.name,
+                              price: item.price,
+                              category: item.category,
+                              consoleName: item.consoleName,
+                              consoleType: item.consoleType,
+                              imageUrl: item.imageUrl
+                            })}
                             className="p-1 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
                             aria-label={`Increase quantity of ${item.name}`}
                           >
@@ -132,7 +147,7 @@ export default function SellList() {
                           ${((Number(item.price) || 0) * item.quantity).toFixed(2)}
                         </span>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.sellListKey || item.id)}
                           className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           aria-label={`Remove ${item.name} from sell list`}
                         >

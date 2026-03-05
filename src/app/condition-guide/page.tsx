@@ -14,7 +14,7 @@ export default function ConditionGuide() {
             className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to What We Buy
+            Back to Top Seller List
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             What is <span className="text-green-600">Good Condition</span>?

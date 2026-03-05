@@ -30,6 +30,7 @@ export default function ContactPage() {
           ...formData,
           sellListItems: sellListItems.map(item => ({
             name: item.name,
+            conditionLabel: item.conditionLabel,
             category: item.category,
             consoleName: item.consoleName,
             price: item.price,
@@ -109,7 +110,7 @@ export default function ContactPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {sellListItems.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.sellListKey || item.id}
                     className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
                   >
                     <div className="flex-1 min-w-0">
@@ -125,6 +126,11 @@ export default function ContactPage() {
                             {item.consoleName}
                           </span>
                         )}
+                        {item.conditionLabel && (
+                          <span className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded">
+                            {item.conditionLabel}
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <span className="text-sm text-gray-500">
@@ -136,7 +142,7 @@ export default function ContactPage() {
                       </div>
                     </div>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.sellListKey || item.id)}
                       className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                       aria-label={`Remove ${item.name} from sell list`}
                     >
@@ -227,6 +233,9 @@ export default function ContactPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Tell us what you want to sell</h2>
+              <p className="text-sm text-gray-600 -mt-2 mb-6">
+                Sending pictures get you a quote faster.
+              </p>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -313,7 +322,7 @@ export default function ContactPage() {
                     required
                     rows={6}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900 bg-white"
-                    placeholder="Tell us what gaming items you have to sell, their condition, and any other details..."
+                    placeholder="Any games not on our Top Sell List will be quoted over email or phone"
                   />
                 </div>
 
