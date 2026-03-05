@@ -49,6 +49,9 @@ export default async function ItemDetailsPage({
       notFound()
     }
 
+    const consoleName = item.console?.name || ''
+    const isClassicCartridgeGame = ['NES', 'SNES', 'Nintendo 64'].includes(consoleName) || /game\s*boy|gameboy/i.test(consoleName)
+
     return (
       <>
         <StructuredData type="Product" data={item} />
@@ -197,7 +200,7 @@ export default async function ItemDetailsPage({
                   ) : item.category.name === 'Games' ? (
                     // Game pricing tiers - different logic for classic Nintendo systems
                     <div className="space-y-4">
-                      {['NES', 'SNES', 'Nintendo 64'].includes(item.console?.name || '') ? (
+                      {isClassicCartridgeGame ? (
                         // Classic Nintendo systems - Game Only only
                         <div className="bg-white/95 rounded-2xl p-4 border border-emerald-100 shadow-sm hover:shadow-md transition-all duration-200">
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

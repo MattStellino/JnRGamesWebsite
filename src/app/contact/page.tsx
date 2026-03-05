@@ -5,6 +5,10 @@ import { Mail, Phone, MapPin, Clock, Send, ShoppingBag, X, Trash2 } from 'lucide
 import toast from 'react-hot-toast'
 import { useSellList } from '@/contexts/SellListContext'
 
+const MAX_UPLOAD_IMAGES = 10
+const MAX_UPLOAD_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+const ALLOWED_UPLOAD_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
 export default function ContactPage() {
   const { items: sellListItems, removeItem, clearList, totalValue, itemCount } = useSellList()
   const [formData, setFormData] = useState({
@@ -14,6 +18,7 @@ export default function ContactPage() {
     subject: '',
     message: ''
   })
+  const [photoFiles, setPhotoFiles] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,23 +26,26 @@ export default function ContactPage() {
     setIsSubmitting(true)
 
     try {
+      const payload = new FormData()
+      payload.append('name', formData.name)
+      payload.append('email', formData.email)
+      payload.append('phone', formData.phone)
+      payload.append('subject', formData.subject)
+      payload.append('message', formData.message)
+      payload.append('sellListItems', JSON.stringify(sellListItems.map(item => ({
+        name: item.name,
+        conditionLabel: item.conditionLabel,
+        category: item.category,
+        consoleName: item.consoleName,
+        price: item.price,
+        quantity: item.quantity
+      }))))
+      payload.append('sellListTotal', totalValue.toString())
+      photoFiles.forEach(file => payload.append('photos', file, file.name))
+
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          sellListItems: sellListItems.map(item => ({
-            name: item.name,
-            conditionLabel: item.conditionLabel,
-            category: item.category,
-            consoleName: item.consoleName,
-            price: item.price,
-            quantity: item.quantity
-          })),
-          sellListTotal: totalValue
-        }),
+        body: payload,
       })
 
       const result = await response.json()
@@ -56,6 +64,7 @@ export default function ContactPage() {
         subject: '',
         message: ''
       })
+      setPhotoFiles([])
     } catch (error) {
       toast.error('Failed to send message. Please try again.')
     } finally {
@@ -68,6 +77,40 @@ export default function ContactPage() {
       ...formData,
       [e.target.name]: e.target.value
     })
+  }
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || [])
+    if (selectedFiles.length === 0) {
+      setPhotoFiles([])
+      return
+    }
+
+    const trimmedFiles = selectedFiles.slice(0, MAX_UPLOAD_IMAGES)
+    if (selectedFiles.length > MAX_UPLOAD_IMAGES) {
+      toast.error(`Only ${MAX_UPLOAD_IMAGES} images can be uploaded.`)
+    }
+
+    for (const file of trimmedFiles) {
+      if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type)) {
+        toast.error(`Unsupported file type: ${file.name}`)
+        e.target.value = ''
+        setPhotoFiles([])
+        return
+      }
+      if (file.size > MAX_UPLOAD_IMAGE_SIZE_BYTES) {
+        toast.error(`File too large (max 5MB): ${file.name}`)
+        e.target.value = ''
+        setPhotoFiles([])
+        return
+      }
+    }
+
+    setPhotoFiles(trimmedFiles)
+  }
+
+  const handleRemovePhoto = (fileName: string) => {
+    setPhotoFiles(prevFiles => prevFiles.filter(file => file.name !== fileName))
   }
 
   return (
@@ -324,6 +367,50 @@ export default function ContactPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900 bg-white"
                     placeholder="Any games not on our Top Sell List will be quoted over email or phone"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="photos" className="block text-sm font-medium text-gray-700 mb-2">
+                    Photos (Optional)
+                  </label>
+                  <input
+                    id="photos"
+                    name="photos"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    onChange={handlePhotoChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Upload up to 10 images (JPG, PNG, WEBP), max 5MB each.
+                  </p>
+                  {photoFiles.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs text-gray-600 mb-2">
+                        {photoFiles.length} file(s) selected
+                      </p>
+                      <div className="space-y-2">
+                        {photoFiles.map((file) => (
+                          <div
+                            key={`${file.name}-${file.size}`}
+                            className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                          >
+                            <span className="text-xs text-gray-700 truncate pr-3">{file.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePhoto(file.name)}
+                              className="inline-flex items-center rounded-md bg-white px-2 py-1 text-xs text-red-600 border border-red-200 hover:bg-red-50 transition-colors"
+                              aria-label={`Remove ${file.name}`}
+                            >
+                              <X className="h-3 w-3 mr-1" />
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-end">

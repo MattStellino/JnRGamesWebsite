@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react'
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { sanitizeInput } from '@/lib/security'
 import ItemCard from '@/components/ItemCard'
@@ -203,6 +204,9 @@ export default async function ItemsPage({
               <h1 id="items-heading" className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
                 Top <span className="text-green-600">Seller List</span>
               </h1>
+              <p className="text-lg text-gray-600">
+                Don&apos;t see your game? We buy all games and consoles - <Link href="/contact" className="text-red-600 hover:text-red-700 underline">contact us!</Link>
+              </p>
             </div>
 
             {/* Search and Filters */}
