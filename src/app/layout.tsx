@@ -2,6 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
+import Script from 'next/script'
 import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 import JRGamesLogo from '@/components/JRGamesLogo'
@@ -18,6 +19,8 @@ import { SellListProvider } from '@/contexts/SellListContext'
 import SellList from '@/components/SellList'
 
 const inter = Inter({ subsets: ['latin'] })
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_TAG_ID || 'G-F2RSCYFBHN'
+const googleAdsConversionId = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_ID
 
 export const metadata: Metadata = {
   title: {
@@ -111,6 +114,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${googleAnalyticsId}');
+            ${googleAdsConversionId ? `gtag('config', '${googleAdsConversionId}');` : ''}
+          `}
+        </Script>
         <SessionProvider>
           <SellListProvider>
           <SessionManager />

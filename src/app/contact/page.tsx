@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, Phone, MapPin, Clock, Send, ShoppingBag, X, Trash2 } from 'lucide-react'
+import { Mail, Phone, MapPin, Clock, Send, ShoppingBag, X, Trash2, Upload } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useSellList } from '@/contexts/SellListContext'
+import { trackGenerateLead, trackGoogleAdsLeadConversion } from '@/lib/gtag'
 
 const MAX_UPLOAD_IMAGES = 10
 const MAX_UPLOAD_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
@@ -51,6 +52,17 @@ export default function ContactPage() {
       const result = await response.json()
 
       if (response.ok) {
+        const leadValue = totalValue > 0 ? totalValue : undefined
+        trackGenerateLead({
+          value: leadValue,
+          currency: 'CAD',
+          leadSource: 'contact_form',
+        })
+        trackGoogleAdsLeadConversion({
+          value: leadValue,
+          currency: 'CAD',
+          leadSource: 'contact_form',
+        })
         toast.success(result.message)
       } else {
         throw new Error(result.error || 'Failed to send message')
@@ -373,6 +385,29 @@ export default function ContactPage() {
                   <label htmlFor="photos" className="block text-sm font-medium text-gray-700 mb-2">
                     Photos (Optional)
                   </label>
+                  <div className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 p-3 sm:p-4">
+                    <label
+                      htmlFor="photos"
+                      className="group flex cursor-pointer flex-col items-start gap-4 rounded-2xl border border-dashed border-blue-200 bg-white px-4 py-4 shadow-sm transition-all duration-300 hover:border-blue-400 hover:shadow-md focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 sm:flex-row sm:items-center sm:justify-between sm:px-5"
+                    >
+                      <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm transition-transform duration-300 group-hover:scale-105">
+                        <Upload className="h-5 w-5" />
+                      </div>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-gray-900">
+                            {photoFiles.length > 0 ? 'Add more pictures' : 'Add pictures'}
+                          </div>
+                          <p className="pr-2 text-xs leading-5 text-gray-600">
+                            Upload clear photos for a faster quote.
+                          </p>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-5 py-1.5 text-xs font-medium text-blue-700 shadow-sm sm:px-6">
+                        Choose files
+                      </span>
+                    </label>
+                  </div>
                   <input
                     id="photos"
                     name="photos"
@@ -380,27 +415,27 @@ export default function ContactPage() {
                     accept="image/jpeg,image/png,image/webp"
                     multiple
                     onChange={handlePhotoChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                    className="sr-only"
                   />
                   <p className="text-xs text-gray-500 mt-2">
-                    Upload up to 10 images (JPG, PNG, WEBP), max 5MB each.
+                    Upload up to 10 images (JPG, PNG, WEBP), max 5MB each and 9MB total for emailed attachments.
                   </p>
                   {photoFiles.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-xs text-gray-600 mb-2">
+                    <div className="mt-4 rounded-2xl bg-slate-50 p-3 sm:p-4">
+                      <p className="mb-3 px-1 text-xs font-medium text-gray-600">
                         {photoFiles.length} file(s) selected
                       </p>
                       <div className="space-y-2">
                         {photoFiles.map((file) => (
                           <div
                             key={`${file.name}-${file.size}`}
-                            className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                            className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2.5"
                           >
-                            <span className="text-xs text-gray-700 truncate pr-3">{file.name}</span>
+                            <span className="min-w-0 flex-1 truncate text-xs text-gray-700">{file.name}</span>
                             <button
                               type="button"
                               onClick={() => handleRemovePhoto(file.name)}
-                              className="inline-flex items-center rounded-md bg-white px-2 py-1 text-xs text-red-600 border border-red-200 hover:bg-red-50 transition-colors"
+                              className="inline-flex shrink-0 items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs text-red-600 transition-colors hover:bg-red-100"
                               aria-label={`Remove ${file.name}`}
                             >
                               <X className="h-3 w-3 mr-1" />
